@@ -11,10 +11,10 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import java.io.IOException;
 
 /**
-A MessageConverter base class for Message Converters that only Write
+ * A MessageConverter base class for Message Converters that only Write
  */
 public abstract class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageConverter<HyperResource> {
-    WriteOnlyHyperResourceMessageConverter(MediaType... supportedTypes){
+    WriteOnlyHyperResourceMessageConverter(MediaType... supportedTypes) {
         super(supportedTypes);
     }
 

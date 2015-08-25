@@ -8,15 +8,12 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import java.io.IOException;
 
 /**
-A MessageConverter used to serialize Hyper Resources as HAL+JSON
+ * A MessageConverter used to serialize Hyper Resources as HAL+JSON
  */
 public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConverter {
-    public HALJSONMessageConverter(){
+    public HALJSONMessageConverter() {
         super(new MediaType("application", "hal+json"));
     }
-
-
-
 
 
     @Override
