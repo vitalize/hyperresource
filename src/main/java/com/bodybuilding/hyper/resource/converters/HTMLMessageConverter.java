@@ -19,7 +19,7 @@ public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
 
-        String result = "\"This is html representation\"\n" + resource.toString();
+        String result = "This is html representation\n" + resource.toString();
         httpOutputMessage.getBody().write(result.getBytes());
     }
 }
