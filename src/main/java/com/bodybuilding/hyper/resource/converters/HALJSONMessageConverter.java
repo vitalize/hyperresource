@@ -1,4 +1,4 @@
-package com.bodybuilding.hyper.resource.converter;
+package com.bodybuilding.hyper.resource.converters;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import org.springframework.http.HttpOutputMessage;
