@@ -19,7 +19,7 @@ public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConver
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
 
-        String result = "\"This is hal+json representation\"\n" + resource.toString();
+        String result = "This is hal+json representation\n" + resource.toString();
         httpOutputMessage.getBody().write(result.getBytes());
     }
 }
