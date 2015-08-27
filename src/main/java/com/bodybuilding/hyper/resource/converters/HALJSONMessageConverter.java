@@ -1,6 +1,7 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import com.bodybuilding.hyper.resource.HyperResource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -15,11 +16,11 @@ public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConver
         super(new MediaType("application", "hal+json"));
     }
 
+    private static ObjectMapper mapper = new ObjectMapper();
+
 
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-
-        String result = "This is hal+json representation\n" + resource.toString();
-        httpOutputMessage.getBody().write(result.getBytes());
+        mapper.writeValue(httpOutputMessage.getBody(), resource);
     }
 }

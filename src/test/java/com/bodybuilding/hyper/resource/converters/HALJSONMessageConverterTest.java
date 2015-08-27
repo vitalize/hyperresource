@@ -10,6 +10,7 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -29,14 +30,17 @@ public class HALJSONMessageConverterTest {
     @Mock
     HttpOutputMessage mockOutput;
 
-    @Mock
-    OutputStream mockBodyStream;
+
+    ByteArrayOutputStream outputStream;
+
+
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
+        outputStream = new ByteArrayOutputStream();
 
-        when(mockOutput.getBody()).thenReturn(mockBodyStream);
+        when(mockOutput.getBody()).thenReturn(outputStream);
     }
 
     @Test
@@ -79,15 +83,14 @@ public class HALJSONMessageConverterTest {
     @Test
     public void testWriteInternalSimpleResourceNoControls() throws IOException {
         HyperResource resource = new HyperResource(){
-
+            public int val = 1;
         };
-
-        String expectedString = "This is hal+json representation\n" + resource.toString();
 
         writer.writeInternal(resource, mockOutput);
 
-        verify(mockBodyStream, only()).write(expectedString.getBytes());
-
+        String expectedString = "{\"val\":1}";
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
 
 
     }
