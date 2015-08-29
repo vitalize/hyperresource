@@ -10,31 +10,23 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * A MessageConverter used to serialize Hyper Resources as HAL+JSON
  */
 public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 	
-	 private static final Logger LOG = LoggerFactory.getLogger(HALJSONMessageConverter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HALJSONMessageConverter.class);
 	
     public HALJSONMessageConverter() {
         super(new MediaType("application", "hal+json"));
     }
 
-    private static ObjectMapper mapper = new ObjectMapper();
-    
-    static {    	
-    	SimpleModule simpleModule = new SimpleModule("SimpleModule");
-    	simpleModule.addSerializer(new LinkListHALJsonSerializer());
-    	mapper.registerModule(simpleModule);
-    }
-
+    private static ObjectMapper mapper = HALJsonObjectMapperFactory.getInstance();    
 
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-    	mapper.writeValue(httpOutputMessage.getBody(), HyperResourceToMap.convert(resource));
-        //System.out.println(mapper.writeValueAsString(HyperResourceToMap.convert(resource)));
+        mapper.writeValue(httpOutputMessage.getBody(), resource);
+       // System.out.println(mapper.writeValueAsString(resource));
     }
 }
