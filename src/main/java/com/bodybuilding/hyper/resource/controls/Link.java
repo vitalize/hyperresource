@@ -1,46 +1,56 @@
 package com.bodybuilding.hyper.resource.controls;
 
+import org.springframework.util.StringUtils;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@EqualsAndHashCode
+@ToString
 public class Link {
 
-	private String href;
-	private String rel;
-	private String name;
-	private String type;
+	private final String href;
+	private final String rel;
+	private final String name;
+	private final String type;
 	
 	public Link(String rel, String href) {
+	    
+	    if(StringUtils.isEmpty(rel)) {
+	        throw new IllegalArgumentException("Rel cannot be empty");
+	    }
+	    if(StringUtils.isEmpty(href)) {
+	        throw new IllegalArgumentException("Href cannot be empty");
+	    }	    
 		this.rel = rel;
 		this.href = href;
+		this.name = null;
+		this.type = null;
 	}
 	
 	public Link(String rel, String href, String name, String type) {
-		this.rel = rel;
-		this.href = href;
+        if(StringUtils.isEmpty(rel)) {
+            throw new IllegalArgumentException("Rel cannot be empty");
+        }
+        if(StringUtils.isEmpty(href)) {
+            throw new IllegalArgumentException("Href cannot be empty");
+        }       
+	    this.rel = rel;
+	    this.href = href;
 		this.name = name;
 		this.type = type;
 	}
 	
 	public String getHref() {
 		return href;
-	}
-	public void setHref(String href) {
-		this.href = href;
-	}
+	}	
 	public String getRel() {
 		return rel;
 	}
-	public void setRel(String rel) {
-		this.rel = rel;
-	}
 	public String getName() {
 		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
+	}	
 	public String getType() {
 		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
+	}	
 }

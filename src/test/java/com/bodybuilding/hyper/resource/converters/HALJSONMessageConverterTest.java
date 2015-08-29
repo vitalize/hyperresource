@@ -1,15 +1,13 @@
 package com.bodybuilding.hyper.resource.converters;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -153,21 +151,45 @@ public class HALJSONMessageConverterTest {
          String actual = outputStream.toString();
          assertEquals(expectedString, actual);
     }
-    
+ 
     @Test
     public void testWriteInternalSimpleResourceWithLinkArray() throws IOException {
-    	 HyperResource resource = new HyperResource() {
-    	       	public Link[] getProfile() { 
-    	       		return new Link[] {
-            			new Link("profile", "prof1"), new Link("profile", "prof2")
-            		};
-	       		}
-    	 };
-    	 writer.writeInternal(resource, mockOutput);
+         HyperResource resource = new HyperResource() {
+                public Link[] getProfile() { 
+                    return new Link[] {
+                        new Link("profile", "prof1"), new Link("profile", "prof2")
+                    };
+                }
+         };
+         writer.writeInternal(resource, mockOutput);
          
          String expectedString  = Resources.toString(
-        		 Resources.getResource("hal-serializer-tests/internalSimpleResourceWithLinkArrayControl.json")
-        		 , Charsets.UTF_8);
+                 Resources.getResource("hal-serializer-tests/"
+                         + "internalSimpleResourceWithLinkArrayControl.json")
+                 , Charsets.UTF_8);
+         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+
+    @Test
+    public void testWriteInternalSimpleResourceWithLinkArrayNSimpleLink() throws IOException {
+         HyperResource resource = new HyperResource() {
+                public Link[] getProfile() { 
+                    return new Link[] {
+                        new Link("profile", "prof1"), new Link("profile", "prof2")
+                    };
+                }               
+                public Link getSelf() {
+                    return new Link("self", "some/url/to/resource");
+               }
+         };
+         writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = Resources.toString(
+                 Resources.getResource("hal-serializer-tests/"
+                         + "internalSimpleResourceWithLinkArrayNSimpleLinkControl.json")
+                 , Charsets.UTF_8);
          
          String actual = outputStream.toString();
          assertEquals(expectedString, actual);
@@ -201,5 +223,24 @@ public class HALJSONMessageConverterTest {
         		 , Charsets.UTF_8);
          
          String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithListProperty() throws IOException {
+         HyperResource resource = new HyperResource() {
+                public List<String> getList() { 
+                    List<String> list = new ArrayList<String>();
+                    list.add("foo1");
+                    list.add("foo2");
+                    return list;                    
+                }
+         };
+         writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = "{\"list\":[\"foo1\",\"foo2\"]}";
+         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
     }
 }
