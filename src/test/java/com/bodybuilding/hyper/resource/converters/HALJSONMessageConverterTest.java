@@ -1,6 +1,16 @@
 package com.bodybuilding.hyper.resource.converters;
 
-import com.bodybuilding.hyper.resource.HyperResource;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -10,13 +20,8 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.bodybuilding.hyper.resource.HyperResource;
+import com.bodybuilding.hyper.resource.controls.Link;
 
 
 public class HALJSONMessageConverterTest {
@@ -83,7 +88,7 @@ public class HALJSONMessageConverterTest {
     @Test
     public void testWriteInternalSimpleResourceNoControls() throws IOException {
         HyperResource resource = new HyperResource(){
-            public int val = 1;
+            public int getVal() {return 1; };
         };
 
         writer.writeInternal(resource, mockOutput);
@@ -91,7 +96,44 @@ public class HALJSONMessageConverterTest {
         String expectedString = "{\"val\":1}";
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithOneLinkControl() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    		 public Link getImage() {
+    			 return new Link("bb:image", "some/url/to/image", "small", "PNG");
+    		}
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
 
+         String expectedString = "{\"_links\":{\"bb:image\":{\"href\":\"some/url/to/image\","
+         		+ "\"name\":\"small\",\"type\":\"PNG\"}}}";
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    //@Test
+    public void testWriteInternalSimpleResourceWithLinkControls() throws IOException {
+        HyperResource resource = new HyperResource(){            	
+            	public int getVal() { return 1; }
+            	public String getName() { return "Gabo"; }            	
+            	public Link getSelf() { return new Link("self", "www"); }
+            	public Link getSomeLink() { return new Link("some", "www"); }
+            	public String getLastName() { return "Solano"; }
+            	public Link getNullLink() {return null;}
+            	public Link getSomeLink2() { return new Link("some", "www2"); }
+            	
+            	public Link[] getProfile() { return new Link[] {
+            			new Link("profile", "prof1"), new Link("profile", "prof2")
+            			}; }
+            	
+        };
 
+        writer.writeInternal(resource, mockOutput);
+
+        String expectedString = "{\"val\":1}";
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
     }
 }
