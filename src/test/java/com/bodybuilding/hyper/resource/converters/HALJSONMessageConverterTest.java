@@ -22,6 +22,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.controls.Link;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+
 
 
 public class HALJSONMessageConverterTest {
@@ -106,34 +109,97 @@ public class HALJSONMessageConverterTest {
     		}
     	 };
     	 writer.writeInternal(resource, mockOutput);
-
-         String expectedString = "{\"_links\":{\"bb:image\":{\"href\":\"some/url/to/image\","
-         		+ "\"name\":\"small\",\"type\":\"PNG\"}}}";
+         
+         String expectedString  = Resources.toString(
+        		 Resources.getResource("hal-serializer-tests/internalSimpleResourceWithOneLinkControl.json")
+        		 , Charsets.UTF_8);
+         
          String actual = outputStream.toString();
          assertEquals(expectedString, actual);
     }
     
-    //@Test
-    public void testWriteInternalSimpleResourceWithLinkControls() throws IOException {
-        HyperResource resource = new HyperResource(){            	
-            	public int getVal() { return 1; }
-            	public String getName() { return "Gabo"; }            	
-            	public Link getSelf() { return new Link("self", "www"); }
-            	public Link getSomeLink() { return new Link("some", "www"); }
-            	public String getLastName() { return "Solano"; }
-            	public Link getNullLink() {return null;}
-            	public Link getSomeLink2() { return new Link("some", "www2"); }
-            	
-            	public Link[] getProfile() { return new Link[] {
+    @Test
+    public void testWriteInternalSimpleResourceWithTwoLinkControls() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    		 public Link getImage() {
+    			 return new Link("bb:image", "some/url/to/image", "small", "PNG");
+    		 }
+    		 
+    		 public Link getSelf() {
+    			 return new Link("self", "some/url/to/resource");
+    		}
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = Resources.toString(
+        		 Resources.getResource("hal-serializer-tests/internalSimpleResourceWithTwoLinkControls.json")
+        		 , Charsets.UTF_8);
+         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithNullLinkControl() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    		 public Link getLink() {
+    			 return null;
+    		 }
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = "{}";
+         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithLinkArray() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    	       	public Link[] getProfile() { 
+    	       		return new Link[] {
             			new Link("profile", "prof1"), new Link("profile", "prof2")
-            			}; }
-            	
-        };
-
-        writer.writeInternal(resource, mockOutput);
-
-        String expectedString = "{\"val\":1}";
-        String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+            		};
+	       		}
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = Resources.toString(
+        		 Resources.getResource("hal-serializer-tests/internalSimpleResourceWithLinkArrayControl.json")
+        		 , Charsets.UTF_8);
+         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithLinkArrayNull() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    	       	public Link[] getProfile() { 
+    	       		return null;
+	       		}
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = "{}";         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalSimpleResourceWithProfileLinkIsArray() throws IOException {
+    	 HyperResource resource = new HyperResource() {
+    	       	public Link getProfile() { 
+    	       		return new Link("profile", "prof1");            		
+	       		}
+    	 };
+    	 writer.writeInternal(resource, mockOutput);
+         
+         String expectedString  = Resources.toString(
+        		 Resources.getResource("hal-serializer-tests/internalSimpleResourceWithProfileLinkIsArray.json")
+        		 , Charsets.UTF_8);
+         
+         String actual = outputStream.toString();
     }
 }

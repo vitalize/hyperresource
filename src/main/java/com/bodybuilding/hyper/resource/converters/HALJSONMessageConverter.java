@@ -9,8 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -28,15 +26,15 @@ public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConver
     private static ObjectMapper mapper = new ObjectMapper();
     
     static {    	
-    	SimpleModule simpleModule = new SimpleModule("SimpleModule", 
-    	                                              new Version(1,0,0,null));
-    	simpleModule.addSerializer(new HyperResourceSerializer(HyperResource.class));
+    	SimpleModule simpleModule = new SimpleModule("SimpleModule");
+    	simpleModule.addSerializer(new LinkListHALJsonSerializer());
     	mapper.registerModule(simpleModule);
     }
 
 
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-    	mapper.writeValue(httpOutputMessage.getBody(), resource);
+    	mapper.writeValue(httpOutputMessage.getBody(), HyperResourceToMap.convert(resource));
+        //System.out.println(mapper.writeValueAsString(HyperResourceToMap.convert(resource)));
     }
 }
