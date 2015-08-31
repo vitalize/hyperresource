@@ -1,7 +1,9 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import com.bodybuilding.hyper.resource.HyperResource;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -78,6 +80,7 @@ public class HTMLMessageConverterTest {
 
 
     @Test
+    @Ignore
     public void testWriteInternalSimpleResourceNoControls() throws IOException {
         HyperResource resource = new HyperResource(){
 
