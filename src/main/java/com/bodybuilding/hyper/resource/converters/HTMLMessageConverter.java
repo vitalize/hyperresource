@@ -20,16 +20,12 @@ import com.github.mustachejava.resolver.DefaultResolver;
  */
 public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 	
-	private MustacheFactory mustacheFactory;
+	private final MustacheFactory mustacheFactory;
 	
     public HTMLMessageConverter() {
         super(new MediaType("text", "html"));
-        setMustacheFactory();
-    }
-    
-    private void setMustacheFactory() {
-    	MustacheResolver mustacheResolver = new DefaultResolver("templates/mustache/");
-		this.mustacheFactory = new DefaultMustacheFactory(mustacheResolver);    	
+        MustacheResolver mustacheResolver = new DefaultResolver("templates/mustache/");
+        this.mustacheFactory = new DefaultMustacheFactory(mustacheResolver);
     }
     
     @Override
@@ -40,6 +36,7 @@ public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter
     	Writer writer = new OutputStreamWriter(httpOutputMessage.getBody());
     	mustache.execute(writer, resource);
     	writer.flush();
+    	writer.close();
     	
     }
     
