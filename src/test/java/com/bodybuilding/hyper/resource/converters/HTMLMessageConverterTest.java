@@ -1,6 +1,10 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import com.bodybuilding.hyper.resource.HyperResource;
+import com.bodybuilding.hyper.resource.NoTemplateHyperResource;
+import com.bodybuilding.hyper.resource.NoVariableHyperResource;
+import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
+import com.github.mustachejava.MustacheNotFoundException;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -11,8 +15,8 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -24,75 +28,86 @@ import static org.mockito.Mockito.*;
 public class HTMLMessageConverterTest {
 
     MediaType mediaType = new MediaType("text", "html");
-    HTMLMessageConverter writer = new HTMLMessageConverter();
+    
+    HTMLMessageConverter htmlMessageConverter = new HTMLMessageConverter();
 
     @Mock
     HttpInputMessage mockInput;
 
     @Mock
-    HttpOutputMessage mockOutput;
+    HttpOutputMessage httpOutputMessage;
 
-    @Mock
-    OutputStream mockBodyStream;
+    OutputStream outputStream;
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
-
-        when(mockOutput.getBody()).thenReturn(mockBodyStream);
+        outputStream = new ByteArrayOutputStream();
+        when(httpOutputMessage.getBody()).thenReturn(outputStream);
     }
 
     @Test
     public void testCanReadReturnsFalse(){
-        assertFalse(writer.canRead(null));
-        assertFalse(writer.canRead(mediaType));
+        assertFalse(htmlMessageConverter.canRead(null));
+        assertFalse(htmlMessageConverter.canRead(mediaType));
     }
-
 
     @Test
     public void testSupports(){
-        assertFalse(writer.supports(Object.class));
-        assertTrue(writer.supports(HyperResource.class));
-        assertTrue(writer.supports(new HyperResource() {
+        assertFalse(htmlMessageConverter.supports(Object.class));
+        assertTrue(htmlMessageConverter.supports(HyperResource.class));
+        assertTrue(htmlMessageConverter.supports(new HyperResource() {
         }.getClass()));
     }
-
 
     @Test
     public void testReadInternalThrows(){
         try{
-            writer.readInternal(HyperResource.class, mockInput);
+            htmlMessageConverter.readInternal(HyperResource.class, mockInput);
             fail("expected exception not thrown");
         } catch (Throwable e){
             assertThat(e, instanceOf(HttpMessageNotReadableException.class));
         }
     }
 
-
     @Test
     public void testCanWrite(){
 
-        assertFalse(writer.canWrite(HyperResource.class, new MediaType("application", "hal+json")));
+        assertFalse(htmlMessageConverter.canWrite(HyperResource.class, new MediaType("application", "hal+json")));
 
-        assertTrue(writer.canWrite(HyperResource.class, mediaType));
+        assertTrue(htmlMessageConverter.canWrite(HyperResource.class, mediaType));
 
     }
-
 
     @Test
-    @Ignore
-    public void testWriteInternalSimpleResourceNoControls() throws IOException {
-        HyperResource resource = new HyperResource(){
+    public void testNoVariableHyperResource() throws IOException {
 
-        };
-
-        String expectedString = "This is html representation\n" + resource.toString();
-
-        writer.writeInternal(resource, mockOutput);
-
-        verify(mockBodyStream, only()).write(expectedString.getBytes());
-
-
+        htmlMessageConverter.writeInternal(new NoVariableHyperResource(), httpOutputMessage);
+        
+        //Confirm the expected output was written.
+        String expectedString = "ANoVariableHyperResource.";
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
 
     }
+    
+    @Test(expected=MustacheNotFoundException.class)
+    public void testNoTemplateHyperResource() throws IOException {
+
+        htmlMessageConverter.writeInternal(new NoTemplateHyperResource(), httpOutputMessage);
+
+    }
+
+    @Test
+    public void testTwoVariableHyperResource() throws IOException {
+
+        htmlMessageConverter.writeInternal(new TwoVariableHyperResource("valueforone","valuefortwo"), httpOutputMessage);
+        
+        //Confirm the expected output was written.
+        String expectedString = "one=valueforone and two=valuefortwo";
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
+
+    }
+
 }
