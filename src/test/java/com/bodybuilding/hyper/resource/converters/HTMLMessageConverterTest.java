@@ -19,6 +19,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -101,10 +102,13 @@ public class HTMLMessageConverterTest {
     @Test
     public void testTwoVariableHyperResource() throws IOException {
 
-        htmlMessageConverter.writeInternal(new TwoVariableHyperResource("valueforone","valuefortwo"), httpOutputMessage);
+        String oneIn = UUID.randomUUID().toString();
+        String twoIn = UUID.randomUUID().toString();
+        
+        htmlMessageConverter.writeInternal(new TwoVariableHyperResource(oneIn, twoIn), httpOutputMessage);
         
         //Confirm the expected output was written.
-        String expectedString = "one=valueforone and two=valuefortwo";
+        String expectedString = "This is the correct serialized output. one=" + oneIn + " and two=" + twoIn;
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
 
