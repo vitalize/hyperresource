@@ -3,7 +3,7 @@ package com.bodybuilding.hyper.resource;
 public class TwoVariableHyperResource implements HyperResource {
 
     private String one;
-    private String two;
+    String two;
     
     public TwoVariableHyperResource(String one, String two) {
         this.one = one;
@@ -13,9 +13,9 @@ public class TwoVariableHyperResource implements HyperResource {
     public String getOne() {
         return one;
     }
-
-    public String getTwo() {
-        return two;
-    }
     
+    public String toString() {
+        return "This is the TwoVariableHyperResource " + one + two;
+    }
+
 }
