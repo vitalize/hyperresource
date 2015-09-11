@@ -25,11 +25,11 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
-public class HTMLMessageConverterTest {
+public class MustacheTemplatedHTMLMessageConverterTest {
 
     MediaType mediaType = new MediaType("text", "html");
     
-    HTMLMessageConverter htmlMessageConverter = new HTMLMessageConverter();
+    MustacheTemplatedHTMLMessageConverter htmlMessageConverter = new MustacheTemplatedHTMLMessageConverter();
 
     @Mock
     HttpInputMessage mockInput;
