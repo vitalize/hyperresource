@@ -18,11 +18,11 @@ import com.github.mustachejava.resolver.DefaultResolver;
 /**
  * A MessageConverter used to serialize Hyper Resources as HTML using Mustache templates.
  */
-public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
+public class MustacheTemplatedHTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 	
 	private final MustacheFactory mustacheFactory;
 	
-    public HTMLMessageConverter() {
+    public MustacheTemplatedHTMLMessageConverter() {
         super(new MediaType("text", "html"));
         MustacheResolver mustacheResolver = new DefaultResolver("templates/mustache/");
         this.mustacheFactory = new DefaultMustacheFactory(mustacheResolver);
