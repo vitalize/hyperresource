@@ -16,7 +16,7 @@ import com.github.mustachejava.MustacheResolver;
 import com.github.mustachejava.resolver.DefaultResolver;
 
 /**
- * A MessageConverter used to serialize Hyper Resources as HAL+JSON
+ * A MessageConverter used to serialize Hyper Resources as HTML using Mustache templates.
  */
 public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 	
