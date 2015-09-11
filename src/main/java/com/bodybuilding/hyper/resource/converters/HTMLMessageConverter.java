@@ -30,14 +30,19 @@ public class HTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter
     
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-
-    	String templateName = resource.getClass().getSimpleName();
-    	Mustache mustache = mustacheFactory.compile(templateName);
-    	Writer writer = new OutputStreamWriter(httpOutputMessage.getBody());
-    	mustache.execute(writer, resource);
-    	writer.flush();
-    	writer.close();
-    	
+        Writer writer = null;
+        try {
+            String templateName = resource.getClass().getSimpleName();
+            Mustache mustache = mustacheFactory.compile(templateName);
+            writer = new OutputStreamWriter(httpOutputMessage.getBody());
+            mustache.execute(writer, resource);
+            writer.flush();
+            writer.close();    
+        } finally {
+            if(writer !=null) {
+                writer.close();
+            }
+        }
     }
     
 }
