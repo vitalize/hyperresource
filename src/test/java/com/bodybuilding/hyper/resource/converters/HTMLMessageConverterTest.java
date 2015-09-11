@@ -7,7 +7,6 @@ import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 import com.github.mustachejava.MustacheNotFoundException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
