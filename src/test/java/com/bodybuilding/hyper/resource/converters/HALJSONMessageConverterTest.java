@@ -1,8 +1,12 @@
 package com.bodybuilding.hyper.resource.converters;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
+import com.bodybuilding.hyper.resource.annotation.Rel;
 import com.bodybuilding.hyper.resource.controls.Link;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -240,6 +245,158 @@ public class HALJSONMessageConverterTest {
          
          String expectedString  = "{\"list\":[\"foo1\",\"foo2\"]}";
          
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+
+    @Test
+    public void testWriteInternalResourceWithOneSubResource() throws IOException {
+         HyperResource resource = new HyperResource() {         
+               @Rel("bb:child")
+               public HyperResource getResource() { 
+                    return new HyperResource() {
+                        public String getFoo() { return "foo"; }
+                    };                                    
+                }              
+         };         
+         writer.writeInternal(resource, mockOutput);         
+         String expectedString  = "{\"_embedded\":{\"bb:child\":{\"foo\":\"foo\"}}}";         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithOneSubResourceNoRelAnnotation() throws IOException {
+         HyperResource resource = new HyperResource() {            
+               public HyperResource getResource() { 
+                    return new HyperResource() {
+                        public String getFoo() { return "foo"; }
+                    };                                    
+                }              
+         };         
+         writer.writeInternal(resource, mockOutput);         
+         String expectedString  = "{\"_embedded\":{\"resource\":{\"foo\":\"foo\"}}}";         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithNullSubresource() throws IOException {
+        HyperResource resource = new HyperResource() {            
+            public HyperResource getResource() { 
+                 return null;                            
+             }              
+        };
+        writer.writeInternal(resource, mockOutput);         
+        String expectedString  = "{}";         
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithTwoSubResourcesWithSameRel() throws IOException {
+         HyperResource resource = new HyperResource() {         
+               @Rel("bb:children")
+               public HyperResource getResource1() { 
+                    return new HyperResource() {
+                        public String getFoo() { return "foo"; }
+                    };                                    
+               }               
+               @Rel("bb:children")
+               public HyperResource getResource2() { 
+                    return new HyperResource() {
+                        public String getFoo() { return "foo"; }
+                    };                                    
+               }
+         };         
+         writer.writeInternal(resource, mockOutput);         
+         String expectedString  = Resources.toString(
+                 Resources.getResource("hal-serializer-tests"
+                         + "/internalResourceWithTwoSubResourcesWithSameRel.json")
+                 , Charsets.UTF_8);         
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithSubresouceArray() throws IOException {
+        HyperResource resource = new HyperResource() {         
+            @Rel("bb:children")
+            public HyperResource[] getResource() { 
+                 HyperResource child1 = new HyperResource() {
+                     public String getFoo() { return "foo"; }
+                 };
+                 HyperResource child2 = new HyperResource() {
+                     public String getFoo() { return "foo"; }
+                 };                  
+                 return new HyperResource[] {child1, child2};
+            }               
+        };
+        writer.writeInternal(resource, mockOutput);         
+        String expectedString  = Resources.toString(
+                Resources.getResource("hal-serializer-tests"
+                        + "/internalResourceWithTwoSubResourcesWithSameRel.json")
+                , Charsets.UTF_8);         
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithNullSubresouceArray() throws IOException {
+        HyperResource resource = new HyperResource() {
+            
+            @Rel("bb:children")
+            public HyperResource[] getResource() { 
+                 return null;                            
+             }              
+        };
+        writer.writeInternal(resource, mockOutput);         
+        String expectedString  = "{}";         
+        String actual = outputStream.toString();
+        assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithOneSubResourceWithOneLink() throws IOException {
+         HyperResource resource = new HyperResource() {         
+           @Rel("bb:child")
+           public HyperResource getResource() { 
+                return new HyperResource() {
+                    public Link getLink() { return new Link("rel", "some/url"); }
+                };                                    
+            }              
+         };         
+         writer.writeInternal(resource, mockOutput);         
+         String expectedString  = Resources.toString(
+                 Resources.getResource("hal-serializer-tests"
+                         + "/internalResourceWithOneSubResourceWithOneLink.json")
+                 , Charsets.UTF_8);              
+         String actual = outputStream.toString();
+         assertEquals(expectedString, actual);
+    }
+    
+    @Test
+    public void testWriteInternalResourceWithTwoDepthSubresources() throws IOException {
+         HyperResource resource = new HyperResource() {
+           @Rel("bb:child1")
+           public HyperResource getResource() {
+                return new HyperResource() {
+                    public String getFoo() { return "foo"; }
+                    
+                    @Rel("bb:child2")
+                    public HyperResource getResource() {
+                        return new HyperResource() {
+                            public String getFoo() { return "foo"; }  
+                        };
+                    }
+                };                                    
+            }              
+         };         
+         writer.writeInternal(resource, mockOutput);         
+         String expectedString  = Resources.toString(
+                 Resources.getResource("hal-serializer-tests"
+                         + "/internalResourceWithTwoDepthSubresources.json")
+                 , Charsets.UTF_8);                
          String actual = outputStream.toString();
          assertEquals(expectedString, actual);
     }
