@@ -33,7 +33,7 @@ public class MustacheTemplatedHTMLMessageConverter extends WriteOnlyHyperResourc
         Writer writer = null;
         try {
             String templateName = resource.getClass().getSimpleName();
-            Mustache mustache = mustacheFactory.compile(templateName);
+            Mustache mustache = mustacheFactory.compile(templateName + ".html");
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
             mustache.execute(writer, resource);
             writer.flush();
