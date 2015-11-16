@@ -77,6 +77,12 @@ public class HALJsonObjectMapperFactory {
                         if(Link[].class.isAssignableFrom(beanWriter.getPropertyType())){
                             return false;
                         }
+                        if(HyperResource.class.isAssignableFrom(beanWriter.getPropertyType())){
+                            return false;
+                        }
+                        if(HyperResource[].class.isAssignableFrom(beanWriter.getPropertyType())){
+                            return false;
+                        }
                     }
                     return super.include(writer);
                 }
