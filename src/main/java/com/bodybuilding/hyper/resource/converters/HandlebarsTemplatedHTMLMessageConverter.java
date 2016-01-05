@@ -4,28 +4,23 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.github.mustachejava.MustacheResolver;
-import com.github.mustachejava.resolver.DefaultResolver;
 
 /**
- * A MessageConverter used to serialize Hyper Resources as HTML using Mustache templates.
+ * A MessageConverter used to serialize Hyper Resources as HTML using Handlerbars templates.
  */
-public class MustacheTemplatedHTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
-	
-	private final MustacheFactory mustacheFactory;
-	
-    public MustacheTemplatedHTMLMessageConverter() {
+public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
+
+    public HandlebarsTemplatedHTMLMessageConverter() {
         super(new MediaType("text", "html"));
-        MustacheResolver mustacheResolver = new DefaultResolver("templates/mustache/");
-        this.mustacheFactory = new DefaultMustacheFactory(mustacheResolver);
     }
     
     @Override
@@ -33,9 +28,13 @@ public class MustacheTemplatedHTMLMessageConverter extends WriteOnlyHyperResourc
         Writer writer = null;
         try {
             String templateName = resource.getClass().getSimpleName();
-            Mustache mustache = mustacheFactory.compile(templateName + ".html");
+            TemplateLoader loader = new ClassPathTemplateLoader();
+            loader.setPrefix("/templates/handlebars");
+            loader.setSuffix(".html");
+            Handlebars handlebars = new Handlebars(loader);
+            Template template =  handlebars.compile(templateName);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
-            mustache.execute(writer, resource);
+            template.apply(resource, writer);
             writer.flush();
             writer.close();    
         } finally {
