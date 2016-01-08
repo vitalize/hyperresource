@@ -19,8 +19,14 @@ import com.bodybuilding.hyper.resource.HyperResource;
  */
 public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 
+    private Handlebars handlebars;
+
     public HandlebarsTemplatedHTMLMessageConverter() {
         super(new MediaType("text", "html"));
+        TemplateLoader loader = new ClassPathTemplateLoader();
+        loader.setPrefix("/templates/handlebars");
+        loader.setSuffix(".html");
+        handlebars = new Handlebars(loader);
     }
     
     @Override
@@ -28,10 +34,6 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
         Writer writer = null;
         try {
             String templateName = resource.getClass().getSimpleName();
-            TemplateLoader loader = new ClassPathTemplateLoader();
-            loader.setPrefix("/templates/handlebars");
-            loader.setSuffix(".html");
-            Handlebars handlebars = new Handlebars(loader);
             Template template =  handlebars.compile(templateName);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
             template.apply(resource, writer);
