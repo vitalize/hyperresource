@@ -4,7 +4,6 @@ import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.NoTemplateHyperResource;
 import com.bodybuilding.hyper.resource.NoVariableHyperResource;
 import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
-import com.github.mustachejava.MustacheNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
@@ -25,11 +25,11 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
-public class MustacheTemplatedHTMLMessageConverterTest {
+public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     MediaType mediaType = new MediaType("text", "html");
     
-    MustacheTemplatedHTMLMessageConverter htmlMessageConverter = new MustacheTemplatedHTMLMessageConverter();
+    HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter();
 
     @Mock
     HttpInputMessage mockInput;
@@ -91,7 +91,7 @@ public class MustacheTemplatedHTMLMessageConverterTest {
 
     }
     
-    @Test(expected=MustacheNotFoundException.class)
+    @Test(expected=FileNotFoundException.class)
     public void testNoTemplateHyperResource() throws IOException {
 
         htmlMessageConverter.writeInternal(new NoTemplateHyperResource(), httpOutputMessage);
