@@ -28,22 +28,22 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
         loader.setSuffix(".html");
         handlebars = new Handlebars(loader);
     }
-    
+
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
         Writer writer = null;
         try {
             String templateName = resource.getClass().getSimpleName();
-            Template template =  handlebars.compile(templateName);
+            Template template = handlebars.compile(templateName);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
             template.apply(resource, writer);
             writer.flush();
-            writer.close();    
+            writer.close();
         } finally {
-            if(writer !=null) {
+            if (writer != null) {
                 writer.close();
             }
         }
     }
-    
+
 }
