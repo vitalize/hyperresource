@@ -13,10 +13,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -122,16 +125,17 @@ public class HALJSONMessageConverterTest {
     }
     
     @Test
-    public void testWriteInternalSimpleResourceWithTwoLinkControls() throws IOException {
+    public void testWriteInternalSimpleResourceWithTwoLinkControls() throws IOException, JSONException {
     	 HyperResource resource = new HyperResource() {
+
     		 public Link getImage() {
     			 return new Link("bb:image", "some/url/to/image", "small", "PNG");
     		 }
-    		 
-    		 public Link getSelf() {
-    			 return new Link("self", "some/url/to/resource");
-    		}
-    	 };
+
+             public Link getSelf() {
+                 return new Link("self", "some/url/to/resource");
+             }
+         };
     	 writer.writeInternal(resource, mockOutput);
          
          String expectedString  = Resources.toString(
@@ -139,7 +143,7 @@ public class HALJSONMessageConverterTest {
         		 , Charsets.UTF_8);
          
          String actual = outputStream.toString();
-         assertEquals(expectedString, actual);
+        JSONAssert.assertEquals(expectedString, actual, false);
     }
     
     @Test
