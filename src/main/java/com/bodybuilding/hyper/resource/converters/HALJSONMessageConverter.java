@@ -25,7 +25,7 @@ public class HALJSONMessageConverter extends WriteOnlyHyperResourceMessageConver
     private static ObjectMapper mapper = HALJsonObjectMapperFactory.getInstance();
 
     @Override
-    protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
+    protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException {
         mapper.writeValue(httpOutputMessage.getBody(), resource);
         // System.out.println(mapper.writeValueAsString(resource));
     }
