@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 /**
  * Configures an ObjectMapper to suit the specific needs of serializing an
  * hyper resource into HAL+JSON.
- * 
+ * <p/>
  * <p>Various steps are required to be able to serialize
  * {@code HyperResource} objects (that have hyper controls like {@code Link}s),
  * without changing the standard bean serialization provided by Jackson default
@@ -30,26 +30,23 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
  * <li>2.The hyper_resource filter is setup to exclude hyper controls from default bean serialization.</li>
  * <li>3.{@code BeanSerializerModifier} is configured in {@code ObjectMapper} to add custom serialization
  * to {@code HyperResouce} objects.</li>
- * </ul> 
- * 
- * @author Bitwise@bodybuilding.com
- * @since 2015-09-07
+ * </ul>
+ *
  * @see HyperResource
  * @see HyperResourceHALSerializer
  * @see Link
- *
  */
 public class HALJsonObjectMapperFactory {
 
     private static final String HYPER_RESOURCE_FILTER_ID = "hyper_resource";
 
-    private HALJsonObjectMapperFactory() {            
+    private HALJsonObjectMapperFactory() {
     }
-    
+
     public static ObjectMapper getInstance() {
-        ObjectMapper mapper = new ObjectMapper();        
+        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("HALJsonModule");
-        
+
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
             private static final long serialVersionUID = -5698257819286739964L;
 
@@ -65,7 +62,7 @@ public class HALJsonObjectMapperFactory {
         //register the hyper_resource filter
         mapper = mapper.setFilterProvider(new SimpleFilterProvider().addFilter(HYPER_RESOURCE_FILTER_ID,
             new SimpleBeanPropertyFilter() {
-            
+
                 @Override
                 protected boolean include(PropertyWriter writer) {
                     //Don't include anything that is a Hyper Control.
@@ -74,32 +71,32 @@ public class HALJsonObjectMapperFactory {
                         if (Link.class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
-                        if(Link[].class.isAssignableFrom(beanWriter.getPropertyType())){
+                        if (Link[].class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
-                        if(HyperResource.class.isAssignableFrom(beanWriter.getPropertyType())){
+                        if (HyperResource.class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
-                        if(HyperResource[].class.isAssignableFrom(beanWriter.getPropertyType())){
+                        if (HyperResource[].class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
                     }
                     return super.include(writer);
                 }
             }
-        ));        
+        ));
         module.setSerializerModifier(new BeanSerializerModifier() {
             @Override
             public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-                    JsonSerializer<?> serializer) {
+                                                      JsonSerializer<?> serializer) {
                 if (HyperResource.class.isAssignableFrom(beanDesc.getBeanClass())) {
-                    return new HyperResourceHALSerializer((BeanSerializer)serializer);
+                    return new HyperResourceHALSerializer((BeanSerializer) serializer);
                 }
                 return serializer;
             }
-        });       
-        mapper.registerModule(module);        
+        });
+        mapper.registerModule(module);
         return mapper;
     }
-    
+
 }
