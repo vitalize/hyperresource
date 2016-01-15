@@ -30,7 +30,7 @@ public abstract class WriteOnlyHyperResourceMessageConverter extends AbstractHtt
 
 
     @Override
-    protected HyperResource readInternal(Class<? extends HyperResource> aClass, HttpInputMessage httpInputMessage) throws IOException, HttpMessageNotReadableException {
+    protected HyperResource readInternal(Class<? extends HyperResource> aClass, HttpInputMessage httpInputMessage) throws IOException {
         throw new HttpMessageNotReadableException("Reading not supported");
     }
 
