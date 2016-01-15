@@ -13,6 +13,8 @@ public class TwoVariableHyperResource implements HyperResource {
     public String getOne() {
         return one;
     }
+
+    public String getTwo() {return  two;}
     
     public String toString() {
         return "This is the TwoVariableHyperResource " + one + two;
