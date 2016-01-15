@@ -30,7 +30,7 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
     }
 
     @Override
-    protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
+    protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException {
         Writer writer = null;
         try {
             String templateName = resource.getClass().getSimpleName();
