@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 /**
  * Configures an ObjectMapper to suit the specific needs of serializing an
  * hyper resource into HAL+JSON.
- * <p/>
+ * <p>
  * <p>Various steps are required to be able to serialize
  * {@code HyperResource} objects (that have hyper controls like {@code Link}s),
  * without changing the standard bean serialization provided by Jackson default
