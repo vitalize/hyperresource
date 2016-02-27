@@ -12,7 +12,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+import com.bodybuilding.commerce.cart.CartApplication;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,11 +29,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.annotation.Rel;
 import com.bodybuilding.hyper.resource.controls.Link;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+
 
 
 public class HALJSONMessageConverterTest {
+
+    static String readResourceAsString(String resource){
+        return new Scanner(CartApplication.class.getClassLoader().getResourceAsStream(resource), "UTF-8").useDelimiter("\\A").next();
+
+    }
 
     MediaType mediaType = new MediaType("application", "hal+json");
     HALJSONMessageConverter writer = new HALJSONMessageConverter();
@@ -117,9 +123,7 @@ public class HALJSONMessageConverterTest {
         };
         writer.writeInternal(resource, mockOutput);
 
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests/internalSimpleResourceWithOneLinkControl.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithOneLinkControl.json");
 
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
@@ -139,9 +143,7 @@ public class HALJSONMessageConverterTest {
         };
         writer.writeInternal(resource, mockOutput);
 
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests/internalSimpleResourceWithTwoLinkControls.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithTwoLinkControls.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -173,10 +175,7 @@ public class HALJSONMessageConverterTest {
         };
         writer.writeInternal(resource, mockOutput);
 
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests/"
-                + "internalSimpleResourceWithLinkArrayControl.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayControl.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -197,10 +196,7 @@ public class HALJSONMessageConverterTest {
         };
         writer.writeInternal(resource, mockOutput);
 
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests/"
-                + "internalSimpleResourceWithLinkArrayNSimpleLinkControl.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayNSimpleLinkControl.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -229,9 +225,7 @@ public class HALJSONMessageConverterTest {
         };
         writer.writeInternal(resource, mockOutput);
 
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests/internalSimpleResourceWithProfileLinkIsArray.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithProfileLinkIsArray.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -325,10 +319,7 @@ public class HALJSONMessageConverterTest {
             }
         };
         writer.writeInternal(resource, mockOutput);
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests"
-                + "/internalResourceWithTwoSubResourcesWithSameRel.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
@@ -352,10 +343,7 @@ public class HALJSONMessageConverterTest {
             }
         };
         writer.writeInternal(resource, mockOutput);
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests"
-                + "/internalResourceWithTwoSubResourcesWithSameRel.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
@@ -388,10 +376,7 @@ public class HALJSONMessageConverterTest {
             }
         };
         writer.writeInternal(resource, mockOutput);
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests"
-                + "/internalResourceWithOneSubResourceWithOneLink.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithOneSubResourceWithOneLink.json");
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
@@ -418,10 +403,7 @@ public class HALJSONMessageConverterTest {
             }
         };
         writer.writeInternal(resource, mockOutput);
-        String expectedString = Resources.toString(
-            Resources.getResource("hal-serializer-tests"
-                + "/internalResourceWithTwoDepthSubresources.json")
-            , Charsets.UTF_8);
+        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoDepthSubresources.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
