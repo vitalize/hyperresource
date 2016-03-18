@@ -1,7 +1,7 @@
 package com.bodybuilding.hyper.resource.controls;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -11,7 +11,7 @@ import lombok.ToString;
 public class FieldSet {
 
     private final String name;
-    private final Collection<Field> fields;
+    private final List<Field> fields;
     
     private FieldSet(Builder builder) {
         this.name = builder.name;
@@ -22,14 +22,14 @@ public class FieldSet {
         return name;
     }
 
-    public Collection<Field> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
     
     public static class Builder {
         
         private String name;
-        private Collection<Field> fields = new ArrayList<Field>();
+        private List<Field> fields = new ArrayList<Field>();
         
         public FieldSet build() {
             return new FieldSet(this);

@@ -1,7 +1,7 @@
 package com.bodybuilding.hyper.resource.controls;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -11,7 +11,7 @@ import lombok.ToString;
 public class TemplatedAction {
     
     private final String name;
-    private final Collection<FieldSet> fieldSets;
+    private final List<FieldSet> fieldSets;
     private final String href;
     
     private TemplatedAction(Builder builder) {
@@ -24,7 +24,7 @@ public class TemplatedAction {
         return name;
     }
 
-    public Collection<FieldSet> getFieldSets() {
+    public List<FieldSet> getFieldSets() {
         return fieldSets;
     }
 
@@ -35,7 +35,7 @@ public class TemplatedAction {
     public static class Builder {
         
         private String name;
-        private Collection<FieldSet> fieldSets = new ArrayList<FieldSet>();
+        private List<FieldSet> fieldSets = new ArrayList<FieldSet>();
         private String href;
         
         public TemplatedAction build() {
