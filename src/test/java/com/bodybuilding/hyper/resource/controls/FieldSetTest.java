@@ -24,7 +24,7 @@ public class FieldSetTest {
     public void testFieldSet() {
         
         String name = UUID.randomUUID().toString();
-        List<Field> fields = TestHelpers.mockFields();
+        List<HiddenField> fields = TestHelpers.mockFields();
         
         Builder builder = new FieldSet.Builder().name(name);
         
