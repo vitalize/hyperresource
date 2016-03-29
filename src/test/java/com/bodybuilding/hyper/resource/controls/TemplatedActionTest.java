@@ -39,4 +39,36 @@ public class TemplatedActionTest {
         
     }
     
+    @Test
+    public void testTemplatedActionNameBuiltWithRequired() {
+        
+        String name = UUID.randomUUID().toString();
+        String href = UUID.randomUUID().toString();
+        
+        new TemplatedAction.Builder().name(name).href(href).build();
+        
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testTemplatedActionNameRequired() {
+        
+        String name = null;
+        String href = UUID.randomUUID().toString();
+        
+        new TemplatedAction.Builder().name(name).href(href).build();
+        
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testTemplatedActionHrefRequired() {
+        
+        String name = UUID.randomUUID().toString();
+        String href = null;
+        
+        new TemplatedAction.Builder().name(name).href(href).build();
+        
+    }
+    
+
+    
 }

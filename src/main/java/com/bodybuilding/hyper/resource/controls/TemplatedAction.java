@@ -6,6 +6,9 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import org.springframework.util.StringUtils;
+
+
 @EqualsAndHashCode
 @ToString
 public class TemplatedAction {
@@ -15,6 +18,12 @@ public class TemplatedAction {
     private final String href;
     
     private TemplatedAction(Builder builder) {
+        if(StringUtils.isEmpty(builder.name)) {
+            throw new IllegalArgumentException("name cannot be empty");
+        }
+        if(StringUtils.isEmpty(builder.href)) {
+            throw new IllegalArgumentException("href cannot be empty");
+        }
         this.name = builder.name;
         this.fieldSets = builder.fieldSets;
         this.href = builder.href;
