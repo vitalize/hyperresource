@@ -11,7 +11,7 @@ import lombok.ToString;
 public class FieldSet {
 
     private final String name;
-    private final List<HiddenField> fields;
+    private final List<Field> fields;
     
     private FieldSet(Builder builder) {
         this.name = builder.name;
@@ -22,14 +22,14 @@ public class FieldSet {
         return name;
     }
 
-    public List<HiddenField> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
     
     public static class Builder {
         
         private String name;
-        private List<HiddenField> fields = new ArrayList<HiddenField>();
+        private List<Field> fields = new ArrayList<Field>();
         
         public FieldSet build() {
             return new FieldSet(this);
@@ -40,7 +40,7 @@ public class FieldSet {
             return this;
         }
         
-        public Builder addField(HiddenField field) {
+        public Builder addField(Field field) {
             this.fields.add(field);
             return this;
         }
