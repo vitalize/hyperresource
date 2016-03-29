@@ -5,13 +5,13 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString
-public class Field {
+public class Field<T> {
     
     private final FieldType type;
     private final String name;
-    private final Object value;
+    private final T value;
     
-    private Field(Builder builder) {
+    private Field(Builder<T> builder) {
         this.type = builder.type;
         this.name = builder.name;
         this.value = builder.value;
@@ -25,7 +25,7 @@ public class Field {
         return name;
     }
 
-    public Object getValue() {
+    public T getValue() {
         return value;
     }
     
@@ -34,27 +34,27 @@ public class Field {
         ;
     }
 
-    public static class Builder {
+    public static class Builder<T> {
         
         private FieldType type;
         private String name;
-        private Object value;
+        private T value;
         
-        public Field build() {
-            return new Field(this);
+        public Field<T> build() {
+            return new Field<T>(this);
         }
         
-        public Builder type(FieldType type) {
+        public Builder<T> type(FieldType type) {
             this.type = type;
             return this;
         }
         
-        public Builder name(String name) {
+        public Builder<T> name(String name) {
             this.name = name;
             return this;
         }
         
-        public Builder value(Object value) {
+        public Builder<T> value(T value) {
             this.value = value;
             return this;
         }
