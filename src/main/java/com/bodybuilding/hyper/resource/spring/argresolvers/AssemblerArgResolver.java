@@ -33,14 +33,17 @@ public class AssemblerArgResolver implements HandlerMethodArgumentResolver {
             }
         }
 
-
-
         return false;
 
     }
 
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
+    public Object resolveArgument(
+        MethodParameter methodParameter,
+        ModelAndViewContainer modelAndViewContainer,
+        NativeWebRequest nativeWebRequest,
+        WebDataBinderFactory webDataBinderFactory
+    ) throws Exception {
         Type type = methodParameter.getGenericParameterType();
         if(type instanceof ParameterizedType){
             Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
@@ -51,12 +54,15 @@ public class AssemblerArgResolver implements HandlerMethodArgumentResolver {
 
             //TODO: should i do this check in supports?
             //TODO: uh this class casting is wrong for sure...but what should i do?
+            //TODO: pass in a filtering strategy that returns only assemblers that satisfy some filtering condition
             return registry.findAssembler((Class)returnType, (Class)inputType);
 
         }
 
 
-        //TODO: or should i throw?
+        //TODO: or should i throw..we get null pointer exceptions in controllers if don't throw..but maybe it'd be better to do the work up in supports and it would seem more natural?
+        //I added a Func<Object, Object> and got a weird error org.springframework.beans.BeanInstantiationException: Failed to instantiate [java.util.function.Function]: Specified class is an interface
+        //So maybe a custom error here ain't such a bad idea
         return null;
     }
 }
