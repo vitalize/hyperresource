@@ -3,13 +3,11 @@ package com.bodybuilding.hyper.resource.controls;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.springframework.util.StringUtils;
 
 
-@EqualsAndHashCode
 @ToString
 public class TemplatedAction {
     

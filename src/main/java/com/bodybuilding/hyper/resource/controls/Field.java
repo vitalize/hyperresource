@@ -1,10 +1,9 @@
 package com.bodybuilding.hyper.resource.controls;
 
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
 
-@EqualsAndHashCode
+
 @ToString
 public abstract class Field<T> {
     
@@ -14,7 +13,7 @@ public abstract class Field<T> {
     protected Field(String name, T value) {
 
         if(!StringUtils.hasText(name)){
-            throw new IllegalArgumentException("name for field cannot be null or empty");
+            throw new IllegalArgumentException("name cannot be null or empty");
         }
         this.name = name;
 
@@ -30,4 +29,11 @@ public abstract class Field<T> {
         return value;
     }
 
+
+    //TODO: decide if we like this as enum..it means that nobody could add a new field type..which may be what we want..not sure
+    abstract public Type getType();
+
+    public enum Type {
+        HIDDEN
+    }
 }

@@ -17,7 +17,7 @@ public class HiddenFieldTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
 
 
@@ -27,7 +27,7 @@ public class HiddenFieldTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
 
 
@@ -37,7 +37,7 @@ public class HiddenFieldTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
 
     }
@@ -50,7 +50,7 @@ public class HiddenFieldTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("value"));
+            assertThat(e.getMessage(), containsString("value cannot be null"));
         }
 
 
@@ -61,6 +61,12 @@ public class HiddenFieldTest {
 
     }
 
+    @Test
+    public void testType(){
+        assertEquals(Field.Type.HIDDEN, new HiddenField<String>("name", "").getType());
+        assertEquals(Field.Type.HIDDEN, new HiddenField<Object>("name", new Object()).getType());
+
+    }
     
     @Test
     public void testField() {
