@@ -1,74 +1,158 @@
 package com.bodybuilding.hyper.resource.controls;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
+
 import org.junit.Test;
 
-import com.bodybuilding.commerce.cart.TestHelpers;
 import com.bodybuilding.hyper.resource.controls.TemplatedAction.Builder;
+import test.TestUtils;
 
 public class TemplatedActionTest {
 
+
+    
     @Test
-    @Ignore
-    public void iterate() {
-        for(int i = 0; i < 100; i++) {
-            testTemplatedAction();
+    public void verifyNameRequired() {
+
+        try {
+            new TemplatedAction.Builder()
+                .name(null)
+                .href("href")
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
         }
+
+
+        try {
+            new TemplatedAction.Builder()
+                .name("")
+                .href("href")
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
+        }
+
+
+        try {
+            new TemplatedAction.Builder()
+                .name("    ")
+                .href("href")
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
+        }
+        
     }
-    
+
     @Test
-    public void testTemplatedAction() {
+    public void verifyHrefRequired() {
+
+        try {
+            new TemplatedAction.Builder()
+                .name("name")
+                .href(null)
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("href"));
+        }
+
+
+        try {
+            new TemplatedAction.Builder()
+                .name("name")
+                .href("")
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("href"));
+        }
+
+
+        try {
+            new TemplatedAction.Builder()
+                .name("name")
+                .href("    ")
+                .build();
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("href"));
+        }
+
         
-        String name = UUID.randomUUID().toString();
-        List<FieldSet> fieldSets = TestHelpers.mockFieldSets();
-        String href = UUID.randomUUID().toString();
-        
-        Builder builder = new TemplatedAction.Builder().name(name).href(href);
-        fieldSets.forEach(fieldSet -> builder.addFieldSet(fieldSet));
-        
+    }
+
+
+    @Test
+    public void testTemplatedActionBuilderNoFieldSets() {
+
+        String fakeName = TestUtils.randomString();
+        String fakeHref = TestUtils.randomString();
+
+
+        Builder builder = new TemplatedAction.Builder()
+            .name(fakeName)
+            .href(fakeHref);
+
+
         TemplatedAction templatedAction = builder.build();
-        
-        Assert.assertEquals(name, templatedAction.getName());
-        Assert.assertEquals(href, templatedAction.getHref());
-        Assert.assertEquals(fieldSets.size(), templatedAction.getFieldSets().size());
-        Assert.assertEquals(fieldSets, templatedAction.getFieldSets());
-        
+
+        assertEquals(fakeName, templatedAction.getName());
+        assertEquals(fakeHref, templatedAction.getHref());
+        assertThat(templatedAction.getFieldSets(), empty());
+
     }
-    
+
+
     @Test
-    public void testTemplatedActionNameBuiltWithRequired() {
-        
-        String name = UUID.randomUUID().toString();
-        String href = UUID.randomUUID().toString();
-        
-        new TemplatedAction.Builder().name(name).href(href).build();
-        
+    public void testTemplatedActionBuilderRandomFieldSets() {
+
+        int numberOfFieldSets = TestUtils.randomInt(10) + 1;
+
+
+        String fakeName = TestUtils.randomString();
+        String fakeHref = TestUtils.randomString();
+        List<FieldSet> fieldSets = IntStream.range(1, numberOfFieldSets + 1)
+            .mapToObj(
+                i -> new FieldSet.Builder().name("field set " + i).build()
+            )
+            .collect(Collectors.toList());
+
+        Builder builder = new TemplatedAction.Builder()
+            .name(fakeName)
+            .href(fakeHref);
+        fieldSets.forEach(fieldSet -> builder.addFieldSet(fieldSet));
+
+        TemplatedAction templatedAction = builder.build();
+
+        assertEquals(fakeName, templatedAction.getName());
+        assertEquals(fakeHref, templatedAction.getHref());
+        assertThat(templatedAction.getFieldSets(), hasSize(numberOfFieldSets));
+        assertEquals(fieldSets, templatedAction.getFieldSets());
+
     }
-    
-    @Test(expected=IllegalArgumentException.class)
-    public void testTemplatedActionNameRequired() {
-        
-        String name = null;
-        String href = UUID.randomUUID().toString();
-        
-        new TemplatedAction.Builder().name(name).href(href).build();
-        
-    }
-    
-    @Test(expected=IllegalArgumentException.class)
-    public void testTemplatedActionHrefRequired() {
-        
-        String name = UUID.randomUUID().toString();
-        String href = null;
-        
-        new TemplatedAction.Builder().name(name).href(href).build();
-        
-    }
-    
 
     
 }

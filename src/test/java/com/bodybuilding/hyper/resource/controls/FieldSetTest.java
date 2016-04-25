@@ -1,30 +1,26 @@
 package com.bodybuilding.hyper.resource.controls;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.bodybuilding.commerce.cart.TestHelpers;
 import com.bodybuilding.hyper.resource.controls.FieldSet.Builder;
+import test.TestUtils;
 
 public class FieldSetTest {
 
-    @Test
-    @Ignore
-    public void iterate() {
-        for(int i = 0; i < 100; i++) {
-            testFieldSet();
-        }
-    }
     
     @Test
     public void testFieldSet() {
         
-        String name = UUID.randomUUID().toString();
-        List<Field> fields = TestHelpers.mockFields();
+        String name = TestUtils.randomString();
+
+        List<Field> fields = Arrays.asList(
+
+        );
         
         Builder builder = new FieldSet.Builder().name(name);
         
@@ -32,9 +28,9 @@ public class FieldSetTest {
         
         FieldSet fieldSet = builder.build();
         
-        Assert.assertEquals(name, fieldSet.getName());
-        Assert.assertEquals(fields.size(), fieldSet.getFields().size());
-        Assert.assertEquals(fields, fieldSet.getFields());
+        assertEquals(name, fieldSet.getName());
+        assertEquals(fields.size(), fieldSet.getFields().size());
+        assertEquals(fields, fieldSet.getFields());
         
     }
     
