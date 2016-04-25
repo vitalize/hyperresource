@@ -18,15 +18,18 @@ public class TemplatedAction {
     private final String href;
     
     private TemplatedAction(Builder builder) {
-        if(StringUtils.isEmpty(builder.name)) {
-            throw new IllegalArgumentException("name cannot be empty");
-        }
-        if(StringUtils.isEmpty(builder.href)) {
-            throw new IllegalArgumentException("href cannot be empty");
+        if(!StringUtils.hasText(builder.name)) {
+            throw new IllegalArgumentException("name cannot be null or empty");
         }
         this.name = builder.name;
-        this.fieldSets = builder.fieldSets;
+
+        if(!StringUtils.hasText(builder.href)) {
+            throw new IllegalArgumentException("href cannot be null or empty");
+        }
         this.href = builder.href;
+
+        //fieldsets cannot be null, but the builder protects us from this currently
+        this.fieldSets = builder.fieldSets;
     }
     
     public String getName() {

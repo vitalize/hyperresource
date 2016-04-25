@@ -14,7 +14,10 @@ public class FieldSet {
     private final List<Field> fields;
     
     private FieldSet(Builder builder) {
+        //TODO: can this be null?  should we protect against that?  what about empty string?
         this.name = builder.name;
+
+        //This cannot be null, but builder protects us so no check needed
         this.fields = builder.fields;
     }
     

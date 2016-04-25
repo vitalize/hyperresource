@@ -1,32 +1,78 @@
 package com.bodybuilding.hyper.resource.controls;
 
-import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
+import test.TestUtils;
 
 public class HiddenFieldTest {
 
     @Test
-    @Ignore
-    public void iterate() {
-        for(int i = 0; i < 100; i++) {
-            testField();
+    public void verifyNameRequired() {
+
+        try {
+            new HiddenField<Object>(null, "href");
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
         }
+
+
+        try {
+            new HiddenField<Object>("", "href");
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
+        }
+
+
+        try {
+            new HiddenField<Object>("   ", "href");
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("name"));
+        }
+
     }
+
+    @Test
+    public void verifyValueRequired() {
+
+        try {
+            new HiddenField<String>("name", null);
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("value"));
+        }
+
+
+        //empty strings are ok for value
+        new HiddenField<String>("name", "");
+        new HiddenField<String>("name", "    ");
+
+
+    }
+
     
     @Test
     public void testField() {
         
-        String name = UUID.randomUUID().toString();
-        Object value = UUID.randomUUID().toString();
+        String name = TestUtils.randomString();
+        String value = TestUtils.randomString();
         
-        Field field = new HiddenField.Builder().name(name).value(value).build();
-        
-        Assert.assertEquals(name, field.getName());
-        Assert.assertTrue(field instanceof HiddenField);
-        Assert.assertEquals(value, field.getValue());
+        Field<String> field = new HiddenField<>(name, value);
+
+        assertEquals(name, field.getName());
+        assertTrue(field instanceof HiddenField);
+        assertEquals(value, field.getValue());
         
     }
     
