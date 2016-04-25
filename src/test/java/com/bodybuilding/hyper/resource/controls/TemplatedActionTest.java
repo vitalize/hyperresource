@@ -29,7 +29,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
 
 
@@ -42,7 +42,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
 
 
@@ -55,7 +55,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("name"));
+            assertThat(e.getMessage(), containsString("name cannot be null or empty"));
         }
         
     }
@@ -72,7 +72,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("href"));
+            assertThat(e.getMessage(), containsString("href cannot be null or empty"));
         }
 
 
@@ -85,7 +85,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("href"));
+            assertThat(e.getMessage(), containsString("href cannot be null or empty"));
         }
 
 
@@ -98,7 +98,7 @@ public class TemplatedActionTest {
             fail("expected exception not thrown");
 
         }catch(IllegalArgumentException e){
-            assertThat(e.getMessage(), containsString("href"));
+            assertThat(e.getMessage(), containsString("href cannot be null or empty"));
         }
 
         
