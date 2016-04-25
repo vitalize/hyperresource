@@ -2,10 +2,8 @@ package com.bodybuilding.hyper.resource.controls;
 
 import org.springframework.util.StringUtils;
 
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
 public class Link {
 
@@ -15,28 +13,20 @@ public class Link {
     private final String type;
 
     public Link(String rel, String href) {
-
-        if (StringUtils.isEmpty(rel)) {
-            throw new IllegalArgumentException("Rel cannot be empty");
-        }
-        if (StringUtils.isEmpty(href)) {
-            throw new IllegalArgumentException("Href cannot be empty");
-        }
-        this.rel = rel;
-        this.href = href;
-        this.name = null;
-        this.type = null;
+        this(rel, href, null, null);
     }
 
     public Link(String rel, String href, String name, String type) {
-        if (StringUtils.isEmpty(rel)) {
-            throw new IllegalArgumentException("Rel cannot be empty");
-        }
-        if (StringUtils.isEmpty(href)) {
-            throw new IllegalArgumentException("Href cannot be empty");
+        if (!StringUtils.hasText(rel)) {
+            throw new IllegalArgumentException("rel cannot be null or empty");
         }
         this.rel = rel;
+
+        if (!StringUtils.hasText(href)) {
+            throw new IllegalArgumentException("href cannot be null or empty");
+        }
         this.href = href;
+
         this.name = name;
         this.type = type;
     }

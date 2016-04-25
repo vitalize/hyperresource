@@ -1,6 +1,5 @@
 package com.bodybuilding.hyper.resource.controls;
 
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString(callSuper=true)
@@ -11,8 +10,13 @@ public class HiddenField<T> extends Field<T> {
 
         //Empty values are ok (but unlikely) however null is not useful for hidden fields as far as i can tell
         if(value == null){
-            throw new IllegalArgumentException("value of hidden field cannot be null");
+            throw new IllegalArgumentException("value cannot be null");
         }
+    }
+
+    @Override
+    public Type getType() {
+        return Type.HIDDEN;
     }
 
 }
