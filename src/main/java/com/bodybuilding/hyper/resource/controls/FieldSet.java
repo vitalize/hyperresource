@@ -6,6 +6,8 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+
 @EqualsAndHashCode
 @ToString
 public class FieldSet {
@@ -25,6 +27,8 @@ public class FieldSet {
         return name;
     }
 
+    @NotNull
+    //TODO: can we have empty field sets?
     public List<Field> getFields() {
         return fields;
     }
