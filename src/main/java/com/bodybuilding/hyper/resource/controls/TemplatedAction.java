@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 
 @ToString
 public class TemplatedAction {
@@ -29,15 +32,20 @@ public class TemplatedAction {
         //fieldsets cannot be null, but the builder protects us from this currently
         this.fieldSets = builder.fieldSets;
     }
-    
+
+    @NotNull
     public String getName() {
         return name;
     }
 
+    @NotNull
     public List<FieldSet> getFieldSets() {
         return fieldSets;
     }
 
+    @NotNull
+    //TODO: really i need is @IsUrl see http://jira/browse/COMAPI-3794
+    @Size(min = 5)
     public String getHref() {
         return href;
     }

@@ -2,6 +2,8 @@ package com.bodybuilding.hyper.resource.controls;
 
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+
 @ToString(callSuper=true)
 public class HiddenField<T> extends Field<T> {
     
@@ -13,6 +15,13 @@ public class HiddenField<T> extends Field<T> {
             throw new IllegalArgumentException("value cannot be null");
         }
     }
+
+    @Override
+    @NotNull
+    public T getValue() {
+        return super.getValue();
+    }
+
 
     @Override
     public Type getType() {
