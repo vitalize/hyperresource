@@ -1,9 +1,13 @@
 package com.bodybuilding.hyper.resource.converters;
 
-import com.bodybuilding.hyper.resource.HyperResource;
-import com.bodybuilding.hyper.resource.NoTemplateHyperResource;
-import com.bodybuilding.hyper.resource.NoVariableHyperResource;
-import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,36 +18,36 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.bodybuilding.hyper.resource.HyperResource;
+import com.bodybuilding.hyper.resource.NoTemplateHyperResource;
+import com.bodybuilding.hyper.resource.NoVariableHyperResource;
+import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 
 
 public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     MediaType mediaType = new MediaType("text", "html");
     
-    HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter();
-
+    @Mock    
+    HandlebarsWrapperTemplateLoader wrapperLoader;
+    
+    HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter ; 
+           
     @Mock
     HttpInputMessage mockInput;
 
     @Mock
-    HttpOutputMessage httpOutputMessage;
-
+    HttpOutputMessage httpOutputMessage;    
+    
+    
     OutputStream outputStream;
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
         outputStream = new ByteArrayOutputStream();
-        when(httpOutputMessage.getBody()).thenReturn(outputStream);
+        when(httpOutputMessage.getBody()).thenReturn(outputStream);        
+        htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter(wrapperLoader);
     }
 
     @Test
@@ -82,7 +86,8 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
     @Test
     public void testNoVariableHyperResource() throws IOException {
 
-        htmlMessageConverter.writeInternal(new NoVariableHyperResource(), httpOutputMessage);
+        when(wrapperLoader.getParentTemplate()).thenReturn("ANoVariableHyperResource.");
+        htmlMessageConverter.writeInternal(new NoVariableHyperResource(), httpOutputMessage);        
         
         //Confirm the expected output was written.
         String expectedString = "ANoVariableHyperResource.";
@@ -91,15 +96,16 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     }
     
-    @Test(expected=FileNotFoundException.class)
-    public void testNoTemplateHyperResource() throws IOException {
-
+    @Test
+    public void testNoTemplateHyperResource() throws IOException {       
+        when(wrapperLoader.getParentTemplate()).thenReturn("ANoVariableHyperResource.");
+        // No resource template still writes wrapper.
         htmlMessageConverter.writeInternal(new NoTemplateHyperResource(), httpOutputMessage);
-
     }
 
     @Test
     public void testTwoVariableHyperResource() throws IOException {
+        when(wrapperLoader.getParentTemplate()).thenReturn("This is the correct serialized output. one={{one}} and two={{two}}");
 
         String oneIn = UUID.randomUUID().toString();
         String twoIn = UUID.randomUUID().toString();
