@@ -29,6 +29,16 @@ public class HandlebarsTemplateDAOApiImpl implements HandlebarsTemplateDAO {
         try {
             URL url = new URL(wrapperAppEndpoint);
             URLConnection connection = url.openConnection();
+
+            //HACK: This dao is probably going away anyways
+            //but many of the TestControllerIntegrationTests end up calling this
+            //which means they wait around for default timeout of 30 if you aren't on vpn
+            //so let's just drop that down
+            //also those tests should have something that relies on external services like this
+            //be mocked out
+            connection.setConnectTimeout(1000 * 3);
+            connection.setReadTimeout(100 * 3);
+
             connection.setRequestProperty("Accept", "text/x-handlebars-template");
             template = StreamUtils.copyToString(connection.getInputStream(), StandardCharsets.UTF_8);                     
         } catch (IOException e) {
