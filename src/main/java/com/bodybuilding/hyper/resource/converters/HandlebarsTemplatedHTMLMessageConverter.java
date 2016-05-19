@@ -14,6 +14,8 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import com.github.jknack.handlebars.io.TemplateSource;
+import com.github.jknack.handlebars.io.URLTemplateSource;
 
 /**
  * A MessageConverter used to serialize Hyper Resources as HTML using Handlerbars templates.
@@ -21,29 +23,19 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResourceMessageConverter {
 
     private Handlebars handlebars;
-    private final HandlebarsWrapperTemplateLoader wrapperLoader;
 
-    public HandlebarsTemplatedHTMLMessageConverter(HandlebarsWrapperTemplateLoader wrapperLoader) {
+    public HandlebarsTemplatedHTMLMessageConverter(Handlebars handlebars) {
         super(new MediaType("text", "html"));
-        TemplateLoader loader = new ClassPathTemplateLoader();
-        loader.setPrefix("/templates/handlebars");
-        loader.setSuffix(".html");
-        handlebars = new Handlebars(loader);
-        handlebars.registerHelper("contextName", new Helper<Object>() {            
-            public CharSequence apply(Object context, Options options)
-                    throws IOException {
-                return context.getClass().getSimpleName();
-            }            
-        });                
-        this.wrapperLoader = wrapperLoader;    
+        this.handlebars = handlebars;
+
     }
 
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException {
         Writer writer = null;
-        String parentTemplate = wrapperLoader.getParentTemplate();
+        TemplateSource source =   handlebars.getLoader().sourceAt("/wrapper/cart");
         try {
-            Template template = handlebars.compileInline(parentTemplate);
+            Template template = handlebars.compile(source);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
             template.apply(resource, writer);
             writer.flush();
@@ -54,5 +46,7 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
             }
         }
     }
+    
+    
 
 }
