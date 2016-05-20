@@ -30,14 +30,17 @@ public class RemoteTemplateSource extends URLTemplateSource{
 	 * @return
 	 */
 	public boolean isExist() {
-		try {
-			content = load();
-		} catch (IOException e) {
-			LOG.error("Error loading resource: " + resource.getFile(), e);
-		}
-		if (!StringUtils.isEmpty(content)) {
-			return true;
-		}
+
+//			try {
+//				content = load();
+//			} catch (IOException e) {
+//				LOG.error("Error loading resource: " + resource.getFile(), e);
+//			}
+//			if (!StringUtils.isEmpty(content)) {
+//				return true;
+//			}			
+		
+
 		return false;
 	}
 
