@@ -9,13 +9,8 @@ import org.springframework.http.MediaType;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.TemplateLoader;
 import com.github.jknack.handlebars.io.TemplateSource;
-import com.github.jknack.handlebars.io.URLTemplateSource;
 
 /**
  * A MessageConverter used to serialize Hyper Resources as HTML using Handlerbars templates.
@@ -33,7 +28,8 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException {
         Writer writer = null;
-        TemplateSource source =   handlebars.getLoader().sourceAt("/wrapper/cart");
+        String templateName = resource.getClass().getSimpleName();
+        TemplateSource source =   handlebars.getLoader().sourceAt(templateName);
         try {
             Template template = handlebars.compile(source);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
@@ -47,6 +43,4 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
         }
     }
     
-    
-
 }
