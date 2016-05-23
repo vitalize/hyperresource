@@ -1,13 +1,15 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,17 +21,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
-import com.bodybuilding.hyper.resource.NoTemplateHyperResource;
-import com.bodybuilding.hyper.resource.NoVariableHyperResource;
-import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
+import com.github.jknack.handlebars.Handlebars;
 
 
 public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     MediaType mediaType = new MediaType("text", "html");
     
-//    @Mock    
-//    HandlebarsWrapperTemplateLoader wrapperLoader;
+    @Mock
+    Handlebars handlebars;
     
     HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter ; 
            
@@ -47,7 +47,7 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
         MockitoAnnotations.initMocks(this);
         outputStream = new ByteArrayOutputStream();
         when(httpOutputMessage.getBody()).thenReturn(outputStream);        
-        //htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter(wrapperLoader);
+        htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter(handlebars);
     }
 
     @Test
