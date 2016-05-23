@@ -1,6 +1,7 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -10,18 +11,23 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
+import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.io.StringTemplateSource;
+import com.github.jknack.handlebars.io.TemplateSource;
 
 
 public class HandlebarsTemplatedHTMLMessageConverterTest {
@@ -30,6 +36,7 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
     
     @Mock
     Handlebars handlebars;
+    
     
     HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter ; 
            
@@ -83,40 +90,35 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     }
 
-//    @Test
-//    public void testNoVariableHyperResource() throws IOException {
-//
-//        when(wrapperLoader.getParentTemplate()).thenReturn("ANoVariableHyperResource.");
-//        htmlMessageConverter.writeInternal(new NoVariableHyperResource(), httpOutputMessage);        
-//        
-//        //Confirm the expected output was written.
-//        String expectedString = "ANoVariableHyperResource.";
-//        String actual = outputStream.toString();
-//        assertEquals(expectedString, actual);
-//
-//    }
-//    
-//    @Test
-//    public void testNoTemplateHyperResource() throws IOException {       
-//        when(wrapperLoader.getParentTemplate()).thenReturn("ANoVariableHyperResource.");
-//        // No resource template still writes wrapper.
-//        htmlMessageConverter.writeInternal(new NoTemplateHyperResource(), httpOutputMessage);
-//    }
-//
-//    @Test
-//    public void testTwoVariableHyperResource() throws IOException {
-//        when(wrapperLoader.getParentTemplate()).thenReturn("This is the correct serialized output. one={{one}} and two={{two}}");
-//
-//        String oneIn = UUID.randomUUID().toString();
-//        String twoIn = UUID.randomUUID().toString();
-//        
-//        htmlMessageConverter.writeInternal(new TwoVariableHyperResource(oneIn, twoIn), httpOutputMessage);
-//        
-//        //Confirm the expected output was written.
-//        String expectedString = "This is the correct serialized output. one=" + oneIn + " and two=" + twoIn;
-//        String actual = outputStream.toString();
-//        assertEquals(expectedString, actual);
-//
-//    }
 
+    @Test
+    public void testRemoteTemplateLoaderOnLocalResources() throws IOException {
+    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
+    	remoteLoader.setSuffix(".html");
+    	remoteLoader.setPrefix("/templates/handlebars/");
+    	TemplateSource templateSource = remoteLoader.sourceAt("/api.bodybuilding.com/wrapper/cart");
+    	assertFalse(templateSource instanceof RemoteTemplateSource);
+    	assertTrue(templateSource.content().startsWith("<!DOCTYPE html>"));
+    }
+
+    @Test
+    public void testRemoteTemplateLoaderOnRemoteResources() throws IOException {
+    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
+    	remoteLoader.setSuffix(".html");
+    	remoteLoader.setPrefix("/templates/handlebars/");
+        // not it loads from local
+    	TemplateSource templateSource = remoteLoader.sourceAt("//api.bodybuilding.com/wrapper/cart");
+    	assertFalse(templateSource instanceof RemoteTemplateSource);
+    	assertTrue(templateSource.content().startsWith("<!DOCTYPE html>"));
+    }
+    
+    @Test
+    public void testRemoteTemplateLoaderWithDefaultSource() throws IOException {
+    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
+    	remoteLoader.setSuffix(".html");
+    	remoteLoader.setPrefix("/templates/handlebars/");
+    	TemplateSource templateSource = remoteLoader.sourceAt("/some_tempate");
+    	assertTrue(templateSource instanceof StringTemplateSource);
+    	assertTrue(templateSource.content().equals(""));
+    }
 }
