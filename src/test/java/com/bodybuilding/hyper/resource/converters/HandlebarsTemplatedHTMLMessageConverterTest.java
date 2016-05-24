@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.io.GuavaCachedTemplateLoader;
 import com.github.jknack.handlebars.io.StringTemplateSource;
+import com.github.jknack.handlebars.io.TemplateLoader;
 import com.github.jknack.handlebars.io.TemplateSource;
 import com.github.jknack.handlebars.springmvc.SpringTemplateLoader;
 
@@ -140,6 +143,26 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
         assertNull(remoteTemplateSource.content());
         assertFalse(remoteTemplateSource.isExist());
         assertNull(remoteTemplateSource.content());
+    }
+    
+    @Test
+    public void testRemoteTemplateLoaderDelegate() throws IOException {
+        
+        SpringTemplateLoader templateLoader = new SpringTemplateLoader(new DefaultResourceLoader());
+        templateLoader.setSuffix(".hbs1");
+        templateLoader.setPrefix("/templates/handlebars1/");
+         
+        TemplateLoader remoteLoader = new RemoteTemplateLoader(templateLoader);
+        
+        assertEquals(".hbs1", remoteLoader.getSuffix());
+        assertEquals("/templates/handlebars1/", remoteLoader.getPrefix());
+        
+        remoteLoader.setSuffix(".hbs2");
+        remoteLoader.setPrefix("/templates/handlebars2/");
+        
+        assertEquals(".hbs2", remoteLoader.getSuffix());
+        assertEquals("/templates/handlebars2/", templateLoader.getPrefix());
+        
     }
     
 }
