@@ -1,16 +1,13 @@
 package com.bodybuilding.hyper.resource.converters;
 
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -28,6 +25,7 @@ import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.io.StringTemplateSource;
 import com.github.jknack.handlebars.io.TemplateSource;
+import com.github.jknack.handlebars.springmvc.SpringTemplateLoader;
 
 
 public class HandlebarsTemplatedHTMLMessageConverterTest {
@@ -93,8 +91,7 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     @Test
     public void testRemoteTemplateLoaderOnLocalResources() throws IOException {
-    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
-    	remoteLoader.setSuffix(".html");
+    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new SpringTemplateLoader(new DefaultResourceLoader()));
     	remoteLoader.setPrefix("/templates/handlebars/");
     	TemplateSource templateSource = remoteLoader.sourceAt("/api.bodybuilding.com/wrapper/cart");
     	assertFalse(templateSource instanceof RemoteTemplateSource);
@@ -103,22 +100,45 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
 
     @Test
     public void testRemoteTemplateLoaderOnRemoteResources() throws IOException {
-    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
-    	remoteLoader.setSuffix(".html");
+        RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new SpringTemplateLoader(new DefaultResourceLoader()));
     	remoteLoader.setPrefix("/templates/handlebars/");
-        // not it loads from local
-    	TemplateSource templateSource = remoteLoader.sourceAt("//api.bodybuilding.com/wrapper/cart");
+        // now it loads from local
+    	TemplateSource templateSource = remoteLoader.sourceAt("http://api.bodybuilding.com/wrapper/cart");
     	assertFalse(templateSource instanceof RemoteTemplateSource);
     	assertTrue(templateSource.content().startsWith("<!DOCTYPE html>"));
     }
     
     @Test
     public void testRemoteTemplateLoaderWithDefaultSource() throws IOException {
-    	RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new DefaultResourceLoader());
-    	remoteLoader.setSuffix(".html");
+        RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new SpringTemplateLoader(new DefaultResourceLoader()));
     	remoteLoader.setPrefix("/templates/handlebars/");
     	TemplateSource templateSource = remoteLoader.sourceAt("/some_tempate");
     	assertTrue(templateSource instanceof StringTemplateSource);
     	assertTrue(templateSource.content().equals(""));
     }
+    
+    @Test
+    public void testRemoteTemplateLoaderOnCartResources() throws IOException {
+        RemoteTemplateLoader remoteLoader = new RemoteTemplateLoader(new SpringTemplateLoader(new DefaultResourceLoader()));
+        remoteLoader.setPrefix("/templates/handlebars/");
+        // now it loads from local
+        TemplateSource templateSource = remoteLoader.sourceAt("http://api.bodybuilding.com/wrapper/store");
+        assertTrue(templateSource instanceof RemoteTemplateSource);
+        assertTrue(templateSource.content().startsWith("<!DOCTYPE html>"));
+    }
+    @Test
+    public void testRemoteTemplateSource() throws IOException {
+        RemoteTemplateSource remoteTemplateSource = new RemoteTemplateSource("http://api.bodybuilding.com/wrapper/store", new URL("http://api.bodybuilding.com/wrapper/store"));
+        assertNull(remoteTemplateSource.content());
+        assertTrue(remoteTemplateSource.isExist());
+        assertTrue(remoteTemplateSource.content().startsWith("<!DOCTYPE html>"));
+    }
+    @Test
+    public void testRemoteTemplateSourceWithWrongUrl() throws IOException {
+        RemoteTemplateSource remoteTemplateSource = new RemoteTemplateSource("http://api.bodybuilding.com/wrapper/store", new URL("http://"));
+        assertNull(remoteTemplateSource.content());
+        assertFalse(remoteTemplateSource.isExist());
+        assertNull(remoteTemplateSource.content());
+    }
+    
 }
