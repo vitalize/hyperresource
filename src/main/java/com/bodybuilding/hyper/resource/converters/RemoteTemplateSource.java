@@ -33,7 +33,7 @@ public class RemoteTemplateSource extends URLTemplateSource{
 
 		try {
 			content = load();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOG.error("Error loading resource: " + resource.getFile() + ".  Use local version.", e);
 		}
 		if (!StringUtils.isEmpty(content)) {
