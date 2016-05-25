@@ -1,5 +1,8 @@
 package com.bodybuilding.hyper.resource.converters;
 
+import static com.bodybuilding.commerce.cart.TestHelpers.mock0Pricing;
+import static com.bodybuilding.commerce.cart.TestHelpers.mockFlag;
+import static com.bodybuilding.commerce.cart.TestHelpers.mockGiftInfo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -21,6 +24,11 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
+import com.bodybuilding.commerce.cart.resources.CartResource;
+import com.bodybuilding.commerce.cart.resources.Flag;
+import com.bodybuilding.commerce.cart.resources.GiftInfo;
+import com.bodybuilding.commerce.cart.resources.Pricing;
+import com.bodybuilding.commerce.cart.resources.CartResource.Builder;
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.TwoVariableHyperResource;
 import com.github.jknack.handlebars.Handlebars;
@@ -29,6 +37,8 @@ import com.github.jknack.handlebars.io.StringTemplateSource;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import com.github.jknack.handlebars.io.TemplateSource;
 import com.github.jknack.handlebars.springmvc.SpringTemplateLoader;
+
+import test.TestUtils;
 
 
 public class HandlebarsTemplatedHTMLMessageConverterTest {
@@ -85,6 +95,28 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
         } catch (Throwable e){
             assertThat(e, instanceOf(HttpMessageNotReadableException.class));
         }
+    }
+    
+ 
+    public CartResource getCartResource() {
+        GiftInfo giftInfo = mockGiftInfo();
+        Flag[] flags = new Flag[1];
+        flags[0] = mockFlag();
+        Pricing noPricing = mock0Pricing();     
+        String biToken = TestUtils.randomString();
+        String fakeHeader = TestUtils.randomString();
+        String fakeCSRF = TestUtils.randomString();
+
+        CartResource cart = new Builder()
+            .biToken(biToken)
+            .headerText(fakeHeader)
+            .giftInfo(giftInfo)
+            .addFlag(flags[0])
+            .pricing(noPricing)
+            .csrfToken(fakeCSRF)
+            .build();
+        
+        return cart;
     }
 
     @Test
@@ -153,7 +185,6 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
     
     @Test
     public void testRemoteTemplateLoaderDelegate() throws IOException {
-        
         SpringTemplateLoader templateLoader = new SpringTemplateLoader(new DefaultResourceLoader());
         templateLoader.setSuffix(".hbs1");
         templateLoader.setPrefix("/templates/handlebars1/");
@@ -169,6 +200,20 @@ public class HandlebarsTemplatedHTMLMessageConverterTest {
         assertEquals(".hbs2", remoteLoader.getSuffix());
         assertEquals("/templates/handlebars2/", templateLoader.getPrefix());
         
+        templateLoader.setSuffix(".hbs");
+        templateLoader.setPrefix("/templates/handlebars/");
+         
+        assertEquals("/templates/handlebars/head-meta.hbs.hbs", remoteLoader.resolve("head-meta.hbs"));
+        
+        Handlebars handlebars  = new Handlebars(templateLoader);
+        HandlebarsTemplatedHTMLMessageConverter htmlMessageConverter = new HandlebarsTemplatedHTMLMessageConverter(handlebars);
+        try{
+            // if null writer?
+            htmlMessageConverter.writeInternal(getCartResource(), null);
+        } catch (Throwable e){
+            e.printStackTrace();
+            assertThat(e, instanceOf(NullPointerException.class));
+        }
     }
     
 }
