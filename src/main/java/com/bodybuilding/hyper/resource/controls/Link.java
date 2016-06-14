@@ -5,7 +5,6 @@ import org.springframework.util.StringUtils;
 
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
 public class Link {
 
