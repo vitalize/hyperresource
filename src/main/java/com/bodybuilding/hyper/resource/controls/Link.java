@@ -1,6 +1,5 @@
 package com.bodybuilding.hyper.resource.controls;
 
-import lombok.EqualsAndHashCode;
 import org.springframework.util.StringUtils;
 
 import lombok.ToString;
