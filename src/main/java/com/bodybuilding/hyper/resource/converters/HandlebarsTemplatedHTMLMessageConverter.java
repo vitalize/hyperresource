@@ -27,15 +27,15 @@ public class HandlebarsTemplatedHTMLMessageConverter extends WriteOnlyHyperResou
 
     @Override
     protected void writeInternal(HyperResource resource, HttpOutputMessage httpOutputMessage) throws IOException {
-        Writer writer = null;
         String templateName = resource.getClass().getSimpleName();
-        TemplateSource source =   handlebars.getLoader().sourceAt(templateName);
+        TemplateSource source = handlebars.getLoader().sourceAt(templateName);
+        Template template = handlebars.compile(source);
+
+        Writer writer = null;
         try {
-            Template template = handlebars.compile(source);
             writer = new OutputStreamWriter(httpOutputMessage.getBody());
             template.apply(resource, writer);
             writer.flush();
-            writer.close();
         } finally {
             if (writer != null) {
                 writer.close();
