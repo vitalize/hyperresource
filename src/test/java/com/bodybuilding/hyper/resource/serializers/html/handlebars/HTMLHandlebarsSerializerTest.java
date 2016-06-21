@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.serializer.html.handlebars.HTMLHandlebarsSerializer;
@@ -77,28 +78,10 @@ public class HTMLHandlebarsSerializerTest {
 
     }
 
-    @Test
-    public void testWriteNullOutput() throws IOException {
-        //This is really here to test writer before it gets sets and get through that finally block for coverage
-        //mostly just test coverage vanity for now
-
-        FakeHyperResource fakeResource = new FakeHyperResource();
-
-        when(mockHandlebars.compile("FakeHyperResource"))
-            .thenReturn(mockTemplate);
-
-        try{
-            subject.write(fakeResource, null);
-            fail("expected exception not thrown");
-        }catch(NullPointerException e){
-            //TODO: not really sure what to test...i could test the stack trace contains Java.io.Writer
-        }
-
-    }
 
 
     @Test
-    public void testEnsureStreamIsClosedOnException() throws IOException {
+    public void testEnsureStreamIsNotClosedOnException() throws IOException {
         //This is really here to test writer before it gets sets and get through that finally block for coverage
         //mostly just test coverage vanity for now
 
@@ -119,15 +102,31 @@ public class HTMLHandlebarsSerializerTest {
             assertSame(fakeException, e);
         }
 
-        verify(mockOutputStream).close();
+
+        verify(mockOutputStream, never()).close();
 
     }
 
     @Test
     public void testWrite() throws IOException {
 
+        AtomicBoolean flushCalled = new AtomicBoolean(false);
+
+
         FakeHyperResource fakeResource = new FakeHyperResource();
-        ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream(){
+
+            @Override
+            public void close() throws IOException {
+                fail("close should not be called");
+            }
+
+
+            @Override
+            public void flush() throws IOException {
+                flushCalled.set(true);
+            }
+        };
 
         when(mockHandlebars.compile("FakeHyperResource"))
             .thenReturn(mockTemplate);
@@ -146,6 +145,7 @@ public class HTMLHandlebarsSerializerTest {
 
         assertEquals("The result written to writer must make it to the passed in output stream", fakeResult, fakeOutputStream.toString());
 
+        assertTrue("flush must be called", flushCalled.get());
 
     }
 
