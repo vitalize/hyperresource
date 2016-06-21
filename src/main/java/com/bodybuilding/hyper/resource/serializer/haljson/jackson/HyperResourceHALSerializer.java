@@ -1,4 +1,4 @@
-package com.bodybuilding.hyper.resource.converters;
+package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
  * Serializes {@code HyperResouce} objects into HAL+JSON.
  *
  */
-public class HyperResourceHALSerializer extends BeanSerializerBase {
+class HyperResourceHALSerializer extends BeanSerializerBase {
 
     private static final String _EMBEDDED = "_embedded";
 
