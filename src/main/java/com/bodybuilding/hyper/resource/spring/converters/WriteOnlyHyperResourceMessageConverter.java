@@ -63,4 +63,7 @@ public class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageC
         return HyperResource.class.isAssignableFrom(aClass);
     }
 
+    public HyperResourceSerializer getSerializer() {
+        return serializer;
+    }
 }
