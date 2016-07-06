@@ -56,6 +56,13 @@ public class HandlebarsSerializerTest {
         subject = new HandlebarsSerializer(mockHandlebars, "something/nothing");
     }
 
+    @Test
+    public void testCanWrite(){
+
+        //assertTrue(, subject.canWrite(HyperResource.class));
+        //assertTrue(, subject.canWrite(new HyperResource(){}.getClass()));
+    }
+
 
     @Test
     public void testRequiredConstructorParams(){

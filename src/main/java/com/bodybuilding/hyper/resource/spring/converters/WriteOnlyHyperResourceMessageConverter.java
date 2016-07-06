@@ -60,7 +60,12 @@ public class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageC
 
     @Override
     protected boolean supports(Class<?> aClass) {
-        return HyperResource.class.isAssignableFrom(aClass);
+        if(!HyperResource.class.isAssignableFrom(aClass)){
+            //if it's not a hyper resource, we can't support it
+            return false;
+        }
+
+        return serializer.canWrite((Class<? extends HyperResource>) aClass);
     }
 
     public HyperResourceSerializer getSerializer() {

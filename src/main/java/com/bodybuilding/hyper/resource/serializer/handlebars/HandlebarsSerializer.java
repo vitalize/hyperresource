@@ -41,6 +41,11 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
     }
 
     @Override
+    public boolean canWrite(Class<? extends HyperResource> resourceClass) {
+        return true;
+    }
+
+    @Override
     public void write(HyperResource resource, OutputStream output) throws IOException {
         String templateName = resource.getClass().getSimpleName();
         Template template = handlebars.compile(templateName);
