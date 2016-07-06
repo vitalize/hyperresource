@@ -35,4 +35,10 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
     public void write(HyperResource resource, OutputStream output) throws IOException {
         MAPPER.writeValue(output, resource);
     }
+
+
+    @Override
+    public boolean canWrite(Class<? extends HyperResource> resourceClass) {
+        return true;
+    }
 }
