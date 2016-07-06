@@ -22,7 +22,7 @@ public class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageC
         super(
             Optional.ofNullable(serializer)
             .map(
-                s ->  s.getContentTypes().stream()
+                s -> s.getContentTypes().stream()
                     .map(MediaType::valueOf)
                     .toArray(MediaType[]::new)
             )
