@@ -4,7 +4,7 @@ package com.bodybuilding.hyper.resource.spring.controllers;
 import javax.servlet.http.HttpServletResponse;
 
 import com.bodybuilding.hyper.resource.serializer.haljson.jackson.HALJSONJacksonSerializer;
-import com.bodybuilding.hyper.resource.serializer.html.handlebars.HTMLHandlebarsSerializer;
+import com.bodybuilding.hyper.resource.serializer.handlebars.HandlebarsSerializer;
 import com.bodybuilding.hyper.resource.spring.converters.WriteOnlyHyperResourceMessageConverter;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.springmvc.SpringTemplateLoader;
@@ -31,10 +31,11 @@ public class TestControllerMVCTest {
         templateLoader.setPrefix("/templates/handlebars/");
 
         return new WriteOnlyHyperResourceMessageConverter(
-            new HTMLHandlebarsSerializer(
+            new HandlebarsSerializer(
                 new Handlebars(
                     templateLoader
-                )
+                ),
+                MediaType.TEXT_HTML_VALUE
             )
         );
     }

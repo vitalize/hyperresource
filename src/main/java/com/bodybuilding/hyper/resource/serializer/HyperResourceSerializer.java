@@ -10,5 +10,7 @@ public interface HyperResourceSerializer {
 
     List<String> getContentTypes();
 
+    //boolean canWrite(HyperResource resource);
+
     void write(HyperResource resource, OutputStream output) throws IOException;
 }
