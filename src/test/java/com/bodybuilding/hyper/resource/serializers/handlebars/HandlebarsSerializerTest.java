@@ -1,4 +1,4 @@
-package com.bodybuilding.hyper.resource.serializers.html.handlebars;
+package com.bodybuilding.hyper.resource.serializers.handlebars;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.io.Writer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bodybuilding.hyper.resource.HyperResource;
-import com.bodybuilding.hyper.resource.serializer.html.handlebars.HTMLHandlebarsSerializer;
+import com.bodybuilding.hyper.resource.serializer.handlebars.HandlebarsSerializer;
 import com.github.jknack.handlebars.Template;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.*;
  *
  * If we start developing handlebars extensions this class will start to grow
  */
-public class HTMLHandlebarsSerializerTest {
+public class HandlebarsSerializerTest {
 
 
     @Mock
@@ -47,30 +47,54 @@ public class HTMLHandlebarsSerializerTest {
     @Mock
     Template mockTemplate;
 
-    HTMLHandlebarsSerializer subject;
+    HandlebarsSerializer subject;
 
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
-        subject = new HTMLHandlebarsSerializer(mockHandlebars);
+        subject = new HandlebarsSerializer(mockHandlebars, "something/nothing");
     }
 
 
     @Test
-    public void testNullConstructor(){
+    public void testRequiredConstructorParams(){
         try{
-            new HTMLHandlebarsSerializer(null);
+            new HandlebarsSerializer(null);
             fail("expected exception not thrown");
         }catch(IllegalArgumentException e){
             assertThat(e.getMessage(), containsString("handlebars can not be null"));
+        }
+
+
+        try{
+            new HandlebarsSerializer(mockHandlebars);
+            fail("expected exception not thrown");
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("handledContentTypes can not be null or empty"));
+        }
+
+        try{
+            new HandlebarsSerializer(mockHandlebars, new String[0]);
+            fail("expected exception not thrown");
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("handledContentTypes can not be null or empty"));
         }
     }
 
     @Test
     public void testGetContentTypes(){
-        assertThat(subject.getContentTypes(), Matchers.contains("text/html"));
+        assertThat(subject.getContentTypes(), Matchers.contains("something/nothing"));
 
+        String newType = TestUtils.randomString();
+        subject = new HandlebarsSerializer(mockHandlebars, newType);
+
+        assertThat(subject.getContentTypes(), Matchers.contains(newType));
+
+        String newType2 = TestUtils.randomString();
+        subject = new HandlebarsSerializer(mockHandlebars, newType2, newType);
+
+        assertThat(subject.getContentTypes(), Matchers.contains(newType2, newType));
     }
 
 
