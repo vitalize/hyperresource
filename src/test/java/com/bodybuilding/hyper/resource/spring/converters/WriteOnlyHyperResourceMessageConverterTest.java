@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -93,25 +94,64 @@ public class WriteOnlyHyperResourceMessageConverterTest {
 
 
     @Test
-    public void testCanWrite(){
+    public void testCanWriteBasedOnContentType(){
         String contentType = "application/" + TestUtils.randomString();
 
         when(mockHyperResourceSerializer.getContentTypes())
             .thenReturn(Collections.singletonList(contentType));
 
+        //This makes it so the type doesn't matter as long as it's a HyperResource
+        when(mockHyperResourceSerializer.canWrite(any()))
+            .thenReturn(true);
+
         WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
 
 
         assertTrue(subject.canWrite(HyperResource.class, null));
+        assertTrue(subject.canWrite(HyperResource.class, MediaType.ALL));
         assertTrue(subject.canWrite(HyperResource.class, MediaType.valueOf(contentType)));
         assertFalse(subject.canWrite(HyperResource.class, new MediaType("text", "plain")));
 
-        assertFalse(subject.canWrite(Object.class, null));
-        assertFalse(subject.canWrite(Object.class, MediaType.valueOf(contentType)));
 
         assertTrue(subject.canWrite(new HyperResource(){}.getClass(), null));
+        assertTrue(subject.canWrite(new HyperResource(){}.getClass(), MediaType.ALL));
         assertTrue(subject.canWrite(new HyperResource(){}.getClass(), MediaType.valueOf(contentType)));
         assertFalse(subject.canWrite(new HyperResource(){}.getClass(), new MediaType("text", "plain")));
+
+    }
+
+
+    @Test
+    public void testCanWriteBasedOnResourceClass(){
+        String contentType = "application/" + TestUtils.randomString();
+
+        Class<? extends HyperResource> someUniqueHyperResourceType = new HyperResource(){}.getClass();
+
+        when(mockHyperResourceSerializer.getContentTypes())
+            .thenReturn(Collections.singletonList(contentType));
+
+        when(mockHyperResourceSerializer.canWrite(someUniqueHyperResourceType))
+            .thenReturn(true);
+
+        when(mockHyperResourceSerializer.canWrite(HyperResource.class))
+            .thenReturn(false);
+
+        WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
+
+
+        assertFalse(subject.canWrite(HyperResource.class, null));
+        assertFalse(subject.canWrite(HyperResource.class, MediaType.ALL));
+        assertFalse(subject.canWrite(HyperResource.class, MediaType.valueOf(contentType)));
+
+
+        assertFalse(subject.canWrite(Object.class, null));
+        assertFalse(subject.canWrite(Object.class, MediaType.ALL));
+        assertFalse(subject.canWrite(Object.class, MediaType.valueOf(contentType)));
+
+        assertTrue(subject.canWrite(someUniqueHyperResourceType, null));
+        assertTrue(subject.canWrite(someUniqueHyperResourceType, MediaType.ALL));
+        assertTrue(subject.canWrite(someUniqueHyperResourceType, MediaType.valueOf(contentType)));
+
 
     }
 

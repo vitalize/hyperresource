@@ -47,6 +47,13 @@ public class HALJSONJacksonSerializerTest {
         assertThat(writer.getContentTypes(), Matchers.contains("application/hal+json"));
 
     }
+
+    @Test
+    public void testCanWrite(){
+
+        assertTrue("any HyperResource can be serialized as hal+json", writer.canWrite(HyperResource.class));
+        assertTrue("any HyperResource can be serialized as hal+json", writer.canWrite(new HyperResource(){}.getClass()));
+    }
     
 
 
