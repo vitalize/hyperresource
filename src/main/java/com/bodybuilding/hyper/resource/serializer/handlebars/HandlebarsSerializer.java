@@ -3,20 +3,22 @@ package com.bodybuilding.hyper.resource.serializer.handlebars;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import com.bodybuilding.hyper.resource.serializer.HyperResourceSerializer;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.TemplateSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A HyperResourceSerializer that uses JKnack Handlebars to serialize Hyper Resources, usually as HTML.
  */
 public class HandlebarsSerializer implements HyperResourceSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(HandlebarsSerializer.class);
 
     private final Handlebars handlebars;
     private final List<String> contentTypes;
@@ -40,9 +42,30 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         return contentTypes;
     }
 
+    //TODO: should these entries have an expiration? if it's in the war it doesn't matter
+    //but what if you configure your loader to look in some external path which can change
+    private final Set<String> missingTemplateLoaders = new HashSet<>();
+
     @Override
     public boolean canWrite(Class<? extends HyperResource> resourceClass) {
-        return true;
+        String templateName = resourceClass.getSimpleName();
+        if(missingTemplateLoaders.contains(templateName)){
+            return false;
+        }
+
+        try{
+            //I don't think this is strictly required as i believe loaders throw vs returning null
+            //but i don't want to get bit by a bad behaving loader
+            if(handlebars.getLoader().sourceAt(templateName) != null){
+                return true;
+            }
+            LOG.warn("remembering canWrite:false for resource class {} because handlers loader returned null", resourceClass);
+        } catch (IOException e){
+            LOG.warn("remembering canWrite:false for resource class {} because of exception {}", resourceClass, e.toString());
+        }
+
+        missingTemplateLoaders.add(templateName);
+        return false;
     }
 
     @Override

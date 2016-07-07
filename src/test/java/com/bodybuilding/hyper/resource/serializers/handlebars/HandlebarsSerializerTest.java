@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.serializer.handlebars.HandlebarsSerializer;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.TemplateLoader;
+import com.github.jknack.handlebars.io.TemplateSource;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +39,8 @@ public class HandlebarsSerializerTest {
     @Mock
     Handlebars mockHandlebars;
 
+    @Mock
+    TemplateLoader mockTemplateLoader;
 
     @Mock
     HttpInputMessage mockInput;
@@ -53,14 +57,47 @@ public class HandlebarsSerializerTest {
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
+
+        when(mockHandlebars.getLoader())
+            .thenReturn(mockTemplateLoader);
+
         subject = new HandlebarsSerializer(mockHandlebars, "something/nothing");
     }
 
     @Test
-    public void testCanWrite(){
+    public void testCanWriteSourceAtReturnsNull() throws IOException {
 
-        //assertTrue(, subject.canWrite(HyperResource.class));
-        //assertTrue(, subject.canWrite(new HyperResource(){}.getClass()));
+
+        assertFalse(subject.canWrite(HyperResource.class));
+
+        assertFalse(subject.canWrite(new HyperResource(){}.getClass()));
+
+        TemplateSource mockSource = mock(TemplateSource.class);
+
+        when(mockTemplateLoader.sourceAt("HyperResource"))
+            .thenReturn(mockSource);
+
+        assertFalse("the previous failure should be cached", subject.canWrite(HyperResource.class));
+
+        //Only should have been 1 call to sourceAt since the frist resulted in failure
+        verify(mockTemplateLoader, times(1)).sourceAt("HyperResource");
+    }
+
+    @Test
+    public void testCanWriteSourceAtThrows() throws IOException {
+
+
+        assertFalse(subject.canWrite(HyperResource.class));
+
+        assertFalse(subject.canWrite(new HyperResource(){}.getClass()));
+        
+        when(mockTemplateLoader.sourceAt("HyperResource"))
+            .thenThrow(new IOException());
+
+        assertFalse("the previous failure should be cached", subject.canWrite(HyperResource.class));
+
+        //Only should have been 1 call to sourceAt since the frist resulted in failure
+        verify(mockTemplateLoader, times(1)).sourceAt("HyperResource");
     }
 
 
