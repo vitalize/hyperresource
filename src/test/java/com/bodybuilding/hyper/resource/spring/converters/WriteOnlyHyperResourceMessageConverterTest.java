@@ -163,6 +163,9 @@ public class WriteOnlyHyperResourceMessageConverterTest {
         when(mockHyperResourceSerializer.getContentTypes())
             .thenReturn(Collections.singletonList(contentType));
 
+        when(mockHyperResourceSerializer.canWrite(any()))
+            .thenReturn(true);
+
         WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
 
         assertFalse(subject.supports(Object.class));
