@@ -10,7 +10,6 @@ import com.bodybuilding.hyper.resource.serializer.HyperResourceSerializer;
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.io.TemplateSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,7 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
             }
             LOG.warn("remembering canWrite:false for resource class {} because handlers loader returned null", resourceClass);
         } catch (IOException e){
-            LOG.warn("remembering canWrite:false for resource class {} because of exception {}", resourceClass, e.toString());
+            LOG.warn("remembering canWrite:false for resource class {} because of exception", resourceClass, e);
         }
 
         missingTemplateLoaders.add(templateName);
