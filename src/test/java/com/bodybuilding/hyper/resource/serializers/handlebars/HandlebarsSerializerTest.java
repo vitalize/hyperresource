@@ -90,7 +90,7 @@ public class HandlebarsSerializerTest {
         assertFalse(subject.canWrite(HyperResource.class));
 
         assertFalse(subject.canWrite(new HyperResource(){}.getClass()));
-        
+
         when(mockTemplateLoader.sourceAt("HyperResource"))
             .thenThrow(new IOException());
 
