@@ -1,4 +1,4 @@
-package com.bodybuilding.hyper.resource.converters;
+package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.controls.Link;
@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
  * @see HyperResourceHALSerializer
  * @see Link
  */
-public class HALJsonObjectMapperFactory {
+class HALJsonObjectMapperFactory {
 
     private static final String HYPER_RESOURCE_FILTER_ID = "hyper_resource";
 

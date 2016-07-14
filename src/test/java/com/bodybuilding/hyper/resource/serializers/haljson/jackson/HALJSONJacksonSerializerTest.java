@@ -1,12 +1,6 @@
-package com.bodybuilding.hyper.resource.converters;
+package com.bodybuilding.hyper.resource.serializers.haljson.jackson;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,38 +9,27 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.bodybuilding.commerce.cart.CartApplication;
+import com.bodybuilding.hyper.resource.serializer.haljson.jackson.HALJSONJacksonSerializer;
+import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.http.HttpInputMessage;
-import org.springframework.http.HttpOutputMessage;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.annotation.Rel;
 import com.bodybuilding.hyper.resource.controls.Link;
 
 
-
-public class HALJSONMessageConverterTest {
+public class HALJSONJacksonSerializerTest {
 
     static String readResourceAsString(String resource){
         return new Scanner(CartApplication.class.getClassLoader().getResourceAsStream(resource), "UTF-8").useDelimiter("\\A").next();
 
     }
 
-    MediaType mediaType = new MediaType("application", "hal+json");
-    HALJSONMessageConverter writer = new HALJSONMessageConverter();
-
-    @Mock
-    HttpInputMessage mockInput;
-
-    @Mock
-    HttpOutputMessage mockOutput;
+    HALJSONJacksonSerializer writer = new HALJSONJacksonSerializer();
 
 
     ByteArrayOutputStream outputStream;
@@ -56,49 +39,26 @@ public class HALJSONMessageConverterTest {
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
         outputStream = new ByteArrayOutputStream();
-
-        when(mockOutput.getBody()).thenReturn(outputStream);
+        
     }
 
     @Test
-    public void testCanReadReturnsFalse() {
-        assertFalse(writer.canRead(null));
-        assertFalse(writer.canRead(mediaType));
-    }
-
-
-    @Test
-    public void testSupports() {
-        assertFalse(writer.supports(Object.class));
-        assertTrue(writer.supports(HyperResource.class));
-        assertTrue(writer.supports(new HyperResource() {
-        }.getClass()));
-    }
-
-
-    @Test
-    public void testReadInternalThrows() {
-        try {
-            writer.readInternal(HyperResource.class, mockInput);
-            fail("expected exception not thrown");
-        } catch (Throwable e) {
-            assertThat(e, instanceOf(HttpMessageNotReadableException.class));
-        }
-    }
-
-
-    @Test
-    public void testCanWrite() {
-
-        assertFalse(writer.canWrite(HyperResource.class, new MediaType("text", "html")));
-
-        assertTrue(writer.canWrite(HyperResource.class, mediaType));
+    public void testGetContentTypes(){
+        assertThat(writer.getContentTypes(), Matchers.contains("application/hal+json"));
 
     }
 
+    @Test
+    public void testCanWrite(){
+
+        assertTrue("any HyperResource can be serialized as hal+json", writer.canWrite(HyperResource.class));
+        assertTrue("any HyperResource can be serialized as hal+json", writer.canWrite(new HyperResource(){}.getClass()));
+    }
+    
+
 
     @Test
-    public void testWriteInternalSimpleResourceNoControls() throws IOException {
+    public void testWriteSimpleResourceNoControls() throws IOException {
         HyperResource resource = new HyperResource() {
             public int getVal() {
                 return 1;
@@ -107,7 +67,7 @@ public class HALJSONMessageConverterTest {
             ;
         };
 
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = "{\"val\":1}";
         String actual = outputStream.toString();
@@ -115,13 +75,13 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithOneLinkControl() throws IOException {
+    public void testWriteSimpleResourceWithOneLinkControl() throws IOException {
         HyperResource resource = new HyperResource() {
             public Link getImage() {
                 return new Link("bb:image", "some/url/to/image", "small", "PNG");
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithOneLinkControl.json");
 
@@ -130,7 +90,7 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithTwoLinkControls() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithTwoLinkControls() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
 
             public Link getImage() {
@@ -141,7 +101,7 @@ public class HALJSONMessageConverterTest {
                 return new Link("self", "some/url/to/resource");
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithTwoLinkControls.json");
 
@@ -150,13 +110,13 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithNullLinkControl() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithNullLinkControl() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link getLink() {
                 return null;
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = "{}";
 
@@ -165,7 +125,7 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithLinkArray() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithLinkArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return new Link[]{
@@ -173,7 +133,7 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayControl.json");
 
@@ -182,7 +142,7 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithLinkArrayNSimpleLink() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithLinkArrayNSimpleLink() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return new Link[]{
@@ -194,7 +154,7 @@ public class HALJSONMessageConverterTest {
                 return new Link("self", "some/url/to/resource");
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayNSimpleLinkControl.json");
 
@@ -203,13 +163,13 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithLinkArrayNull() throws IOException {
+    public void testWriteSimpleResourceWithLinkArrayNull() throws IOException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return null;
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = "{}";
         String actual = outputStream.toString();
@@ -217,13 +177,13 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithProfileLinkIsArray() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithProfileLinkIsArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link getProfile() {
                 return new Link("profile", "prof1");
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithProfileLinkIsArray.json");
 
@@ -232,7 +192,7 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalSimpleResourceWithListProperty() throws IOException, JSONException {
+    public void testWriteSimpleResourceWithListProperty() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public List<String> getList() {
                 List<String> list = new ArrayList<String>();
@@ -241,7 +201,7 @@ public class HALJSONMessageConverterTest {
                 return list;
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
 
         String expectedString = "{\"list\":[\"foo1\",\"foo2\"]}";
 
@@ -250,7 +210,7 @@ public class HALJSONMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternalResourceWithOneSubResource() throws IOException {
+    public void testWriteResourceWithOneSubResource() throws IOException {
         HyperResource resource = new HyperResource() {
             @Rel("bb:child")
             public HyperResource getResource() {
@@ -261,14 +221,14 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = "{\"_embedded\":{\"bb:child\":{\"foo\":\"foo\"}}}";
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
 
     @Test
-    public void testWriteInternalResourceWithOneSubResourceNoRelAnnotation() throws IOException {
+    public void testWriteResourceWithOneSubResourceNoRelAnnotation() throws IOException {
         HyperResource resource = new HyperResource() {
             public HyperResource getResource() {
                 return new HyperResource() {
@@ -278,27 +238,27 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = "{\"_embedded\":{\"resource\":{\"foo\":\"foo\"}}}";
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
 
     @Test
-    public void testWriteInternalResourceWithNullSubresource() throws IOException {
+    public void testWriteResourceWithNullSubresource() throws IOException {
         HyperResource resource = new HyperResource() {
             public HyperResource getResource() {
                 return null;
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = "{}";
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
 
     @Test
-    public void testWriteInternalResourceWithTwoSubResourcesWithSameRel() throws IOException, JSONException {
+    public void testWriteResourceWithTwoSubResourcesWithSameRel() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             @Rel("bb:children")
             public HyperResource getResource1() {
@@ -318,14 +278,14 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
-    public void testWriteInternalResourceWithSubresouceArray() throws IOException, JSONException {
+    public void testWriteResourceWithSubresouceArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             @Rel("bb:children")
             public HyperResource[] getResource() {
@@ -342,14 +302,14 @@ public class HALJSONMessageConverterTest {
                 return new HyperResource[]{child1, child2};
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
-    public void testWriteInternalResourceWithNullSubresouceArray() throws IOException, JSONException {
+    public void testWriteResourceWithNullSubresouceArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
 
             @Rel("bb:children")
@@ -357,14 +317,14 @@ public class HALJSONMessageConverterTest {
                 return null;
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = "{}";
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
-    public void testWriteInternalResourceWithOneSubResourceWithOneLink() throws IOException {
+    public void testWriteResourceWithOneSubResourceWithOneLink() throws IOException {
         HyperResource resource = new HyperResource() {
             @Rel("bb:child")
             public HyperResource getResource() {
@@ -375,14 +335,14 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithOneSubResourceWithOneLink.json");
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
 
     @Test
-    public void testWriteInternalResourceWithTwoDepthSubresources() throws IOException, JSONException {
+    public void testWriteResourceWithTwoDepthSubresources() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             @Rel("bb:child1")
             public HyperResource getResource() {
@@ -402,9 +362,10 @@ public class HALJSONMessageConverterTest {
                 };
             }
         };
-        writer.writeInternal(resource, mockOutput);
+        writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoDepthSubresources.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
+    
 }

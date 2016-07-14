@@ -1,4 +1,4 @@
-package com.bodybuilding.hyper.resource.converters;
+package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,9 +24,10 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
  * Serializes {@code HyperResouce} objects into HAL+JSON.
  *
  */
-public class HyperResourceHALSerializer extends BeanSerializerBase {
+class HyperResourceHALSerializer extends BeanSerializerBase {
 
-    private static final String _EMBEDDED = "_embedded";
+    private static final String HAL_KEY_EMBEDDED = "_embedded";
+    private static final String HAL_KEY_LINKS = "_links";
 
     public HyperResourceHALSerializer(BeanSerializerBase source) {
         super(source);
@@ -70,12 +71,15 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
 
     }
 
-    private void writeLinks(Object bean, JsonGenerator jgen,
-                            Stream<BeanPropertyWriter> beanPropertyWriterStream) {
+    private void writeLinks(
+        Object bean,
+        JsonGenerator jgen,
+        Stream<BeanPropertyWriter> beanPropertyWriterStream
+    ) {
 
         // Step 1: Group all links by rel.
         // Maybe this can be simplified with stream collectors???
-        Map<String, List<Link>> linksMap = new LinkedHashMap<String, List<Link>>();
+        Map<String, List<Link>> linksMap = new LinkedHashMap<>();
         beanPropertyWriterStream.forEach(p -> {
             try {
                 Object o = p.get(bean);
@@ -100,7 +104,7 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
         // Step 2: Serialize all links grouped by rel.
         if (linksMap.size() > 0) {
             try {
-                jgen.writeFieldName("_links");
+                jgen.writeFieldName(HAL_KEY_LINKS);
                 jgen.writeStartObject();
 
                 linksMap.forEach((k, v) -> {
@@ -144,10 +148,14 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
     }
 
 
-    private void writeEmbeddedHyperResources(Object bean, JsonGenerator jgen,
-                                             Stream<BeanPropertyWriter> beanPropertyWriterStream, SerializerProvider provider) {
+    private void writeEmbeddedHyperResources(
+        Object bean,
+        JsonGenerator jgen,
+        Stream<BeanPropertyWriter> beanPropertyWriterStream,
+        SerializerProvider provider
+    ) {
 
-        Map<String, List<HyperResource>> resources = new LinkedHashMap<String, List<HyperResource>>();
+        Map<String, List<HyperResource>> resources = new LinkedHashMap<>();
 
         // 1. Group hyper resources by rel.
         beanPropertyWriterStream.forEach(p -> {
@@ -161,7 +169,7 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
                 Rel rel = p.getAnnotation(Rel.class);
                 // Use rel annotation if present, otherwise use property name.
                 String relName = (rel != null ? rel.value() : p.getName());
-                resources.putIfAbsent(relName, new LinkedList<HyperResource>());
+                resources.putIfAbsent(relName, new LinkedList<>());
 
                 if (o instanceof HyperResource) {
                     resources.get(relName).add((HyperResource) o);
@@ -176,7 +184,7 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
         // 2. Write hyper resource recursively.
         if (resources.size() > 0) {
             try {
-                jgen.writeFieldName(_EMBEDDED);
+                jgen.writeFieldName(HAL_KEY_EMBEDDED);
                 jgen.writeStartObject();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -227,30 +235,39 @@ public class HyperResourceHALSerializer extends BeanSerializerBase {
         }
     }
 
-    public HyperResourceHALSerializer(HyperResourceHALSerializer source,
-                                      ObjectIdWriter objectIdWriter) {
+    public HyperResourceHALSerializer(
+        HyperResourceHALSerializer source,
+        ObjectIdWriter objectIdWriter
+    ) {
         super(source, objectIdWriter);
     }
 
-    public HyperResourceHALSerializer(HyperResourceHALSerializer source,
-                                      String[] toIgnore) {
+    public HyperResourceHALSerializer(
+        HyperResourceHALSerializer source,
+        String[] toIgnore
+    ) {
         super(source, toIgnore);
     }
 
-    public HyperResourceHALSerializer(HyperResourceHALSerializer source,
-                                      ObjectIdWriter objectIdWriter,
-                                      Object filterId) {
+    public HyperResourceHALSerializer(
+        HyperResourceHALSerializer source,
+        ObjectIdWriter objectIdWriter,
+        Object filterId
+    ) {
         super(source, objectIdWriter, filterId);
     }
 
     @Override
     public BeanSerializerBase withObjectIdWriter(
-        ObjectIdWriter objectIdWriter) {
+        ObjectIdWriter objectIdWriter
+    ) {
         return new HyperResourceHALSerializer(this, objectIdWriter);
     }
 
     @Override
-    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
+    protected BeanSerializerBase withIgnorals(
+        String[] toIgnore
+    ) {
         return new HyperResourceHALSerializer(this, toIgnore);
     }
 
