@@ -11,12 +11,17 @@ public class Link {
     private final String rel;
     private final String name;
     private final String type;
+    private final String title;
 
     public Link(String rel, String href) {
-        this(rel, href, null, null);
+        this(rel, href, null, null, null);
     }
 
     public Link(String rel, String href, String name, String type) {
+        this(rel, href, name, type, null);
+    }
+
+    public Link(String rel, String href, String name, String type, String title) {
         if (!StringUtils.hasText(rel)) {
             throw new IllegalArgumentException("rel cannot be null or empty");
         }
@@ -29,6 +34,7 @@ public class Link {
 
         this.name = name;
         this.type = type;
+        this.title = title;
     }
 
     public String getHref() {
@@ -45,5 +51,9 @@ public class Link {
 
     public String getType() {
         return type;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
