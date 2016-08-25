@@ -310,6 +310,21 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
+    public void testWriteResourceWithEmptySubresouceArray() throws IOException, JSONException {
+        HyperResource resource = new HyperResource() {
+
+            @Rel("bb:children")
+            public HyperResource[] getResource() {
+                return new HyperResource[]{};
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = "{}";
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+    @Test
     public void testWriteResourceWithNullSubresouceArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
 
