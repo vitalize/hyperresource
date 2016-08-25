@@ -353,6 +353,7 @@ public class HALJSONJacksonSerializerTest {
 
     @Test
     public void testWriteResourceWithEmptySubresouceArray() throws IOException, JSONException {
+        //By default we exclude empty sub resource arrays
         HyperResource resource = new HyperResource() {
 
             @Rel("bb:children")
@@ -368,6 +369,7 @@ public class HALJSONJacksonSerializerTest {
 
     @Test
     public void testWriteResourceWithNullSubresouceArray() throws IOException, JSONException {
+        //nulls are ignored in general..so this is no different than an empty aray
         HyperResource resource = new HyperResource() {
 
             @Rel("bb:children")
@@ -429,6 +431,7 @@ public class HALJSONJacksonSerializerTest {
 
     @Test
     public void testWriteResourceWithSubresourceArrayWithSingleEntry() throws IOException, JSONException {
+        // a subresource returned as part of an array always should serialize as an array
         HyperResource resource = new HyperResource() {
             @Rel("bb:child")
             public HyperResource[] getResource() {
