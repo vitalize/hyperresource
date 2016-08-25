@@ -1,11 +1,9 @@
 package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.util.StringUtils;
@@ -15,7 +13,6 @@ import com.bodybuilding.hyper.resource.annotation.Rel;
 import com.bodybuilding.hyper.resource.controls.Link;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
@@ -50,56 +47,57 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
             serializeFields(bean, gen, provider);
         }
 
+        //Here's the special part and why we override and copy pasta this stuff
         this.serializeControls(bean, gen, provider);
 
         gen.writeEndObject();
     }
 
 
-    public void serializeControls(Object bean, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 
-        Stream<BeanPropertyWriter> linksBeanPropertyWriterStream = Arrays.stream(_props)
-            .filter(p -> Link.class.isAssignableFrom(p.getPropertyType())
-                || Link[].class.isAssignableFrom(p.getPropertyType()));
+    private void serializeControls(Object bean, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 
-        writeLinks(bean, jgen, linksBeanPropertyWriterStream);
+        writeLinks(bean, jgen);
 
-        Stream<BeanPropertyWriter> hyperResourceBeanPropertyWriterStream = Arrays.stream(_props)
-            .filter(p -> HyperResource.class.isAssignableFrom(p.getPropertyType())
-                || HyperResource[].class.isAssignableFrom(p.getPropertyType()));
-        writeEmbeddedHyperResources(bean, jgen, hyperResourceBeanPropertyWriterStream, provider);
+        writeEmbeddedResources(bean, jgen);
 
     }
 
     private void writeLinks(
         Object bean,
-        JsonGenerator jgen,
-        Stream<BeanPropertyWriter> beanPropertyWriterStream
+        JsonGenerator jgen
     ) {
 
         // Step 1: Group all links by rel.
-        // Maybe this can be simplified with stream collectors???
-        Map<String, List<Link>> linksMap = new LinkedHashMap<>();
-        beanPropertyWriterStream.forEach(p -> {
-            try {
-                Object o = p.get(bean);
-                if (o != null) {
-                    if (o instanceof Link) {
-                        Link link = (Link) o;
-                        linksMap.putIfAbsent(link.getRel(), new LinkedList<Link>());
-                        linksMap.get(link.getRel()).add(link);
-                    } else if (o instanceof Link[]) {
-                        Link[] linkArray = (Link[]) o;
-                        for (Link l : linkArray) {
-                            linksMap.putIfAbsent(l.getRel(), new LinkedList<Link>());
-                            linksMap.get(l.getRel()).add(l);
-                        }
-                    }
+        Map<String, List<Link>> linksMap = Arrays.stream(_props)
+            .filter(
+                p -> Link.class.isAssignableFrom(p.getPropertyType()) || Link[].class.isAssignableFrom(p.getPropertyType())
+            )
+            .map(p -> {
+                try {
+                    return p.get(bean);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+            })
+            .filter(Objects::nonNull)
+            .flatMap(o -> {
+
+                if (o instanceof Link) {
+                    return Stream.of((Link)o);
+                }
+
+                if (o instanceof Link[]) {
+                    return Stream.of((Link[])o);
+                }
+
+                return Stream.empty();
+            })
+            .collect(Collectors.groupingBy(
+                Link::getRel,
+                Collectors.toList()
+            ));
+
 
         // Step 2: Serialize all links grouped by rel.
         if (linksMap.size() > 0) {
@@ -107,39 +105,32 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                 jgen.writeFieldName(HAL_KEY_LINKS);
                 jgen.writeStartObject();
 
-                linksMap.forEach((k, v) -> {
-                    try {
-                        jgen.writeFieldName(k); // Writes rel.
-                        boolean writingLinkArray = false;
-                        if (v.size() > 1
-                            || k.equalsIgnoreCase("profile")) {
-                            jgen.writeStartArray();
-                            // To know later array has to be closed.
-                            writingLinkArray = true;
-                        }
-                        v.forEach(l -> {
-                            try {
-                                jgen.writeStartObject();
-                                jgen.writeStringField("href", l.getHref());
+                for(Map.Entry<String,List<Link>> e : linksMap.entrySet()){
 
-                                if (!StringUtils.isEmpty(l.getName())) {
-                                    jgen.writeStringField("name", l.getName());
-                                }
-                                if (!StringUtils.isEmpty(l.getType())) {
-                                    jgen.writeStringField("type", l.getType());
-                                }
-                                jgen.writeEndObject();
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                        if (writingLinkArray) {
-                            jgen.writeEndArray();
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    jgen.writeFieldName(e.getKey()); // Writes rel.
+                    boolean writingLinkArray = e.getValue().size() > 1 || e.getKey().equalsIgnoreCase("profile");
+
+                    if (writingLinkArray) {
+                        jgen.writeStartArray();
                     }
-                });
+
+                    for(Link l : e.getValue()){
+                        //TODO: we should just have a serializer for these types
+                        jgen.writeStartObject();
+                        jgen.writeStringField("href", l.getHref());
+
+                        if (!StringUtils.isEmpty(l.getName())) {
+                            jgen.writeStringField("name", l.getName());
+                        }
+                        if (!StringUtils.isEmpty(l.getType())) {
+                            jgen.writeStringField("type", l.getType());
+                        }
+                        jgen.writeEndObject();
+                    }
+                    if (writingLinkArray) {
+                        jgen.writeEndArray();
+                    }
+                }
                 jgen.writeEndObject();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -147,89 +138,108 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
         }
     }
 
+    //Since resources don't have rels, we need to track the rel through the stream
+    private static class RelJar<T> {
+        final String rel;
+        final T content;
 
-    private void writeEmbeddedHyperResources(
+        private RelJar(String rel, T content) {
+            this.rel = rel;
+            this.content = content;
+        }
+    }
+
+    private void writeEmbeddedResources(
         Object bean,
-        JsonGenerator jgen,
-        Stream<BeanPropertyWriter> beanPropertyWriterStream,
-        SerializerProvider provider
+        JsonGenerator jgen
     ) {
 
-        Map<String, List<HyperResource>> resources = new LinkedHashMap<>();
-
         // 1. Group hyper resources by rel.
-        beanPropertyWriterStream.forEach(p -> {
-            Object o = null;
-            try {
-                o = p.get(bean);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            if (o != null) {
+        Map<String, List<HyperResource>> resources = Arrays.stream(_props)
+            .filter(
+                p -> HyperResource.class.isAssignableFrom(p.getPropertyType()) || HyperResource[].class.isAssignableFrom(p.getPropertyType())
+            )
+            .map(p -> {
                 Rel rel = p.getAnnotation(Rel.class);
                 // Use rel annotation if present, otherwise use property name.
                 String relName = (rel != null ? rel.value() : p.getName());
-                resources.putIfAbsent(relName, new LinkedList<>());
 
-                if (o instanceof HyperResource) {
-                    resources.get(relName).add((HyperResource) o);
-                } else if (o instanceof HyperResource[]) {
-                    for (HyperResource resource : (HyperResource[]) o) {
-                        resources.get(relName).add(resource);
-                    }
+                try {
+                    return new RelJar<>(relName, p.get(bean));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            }
-        });
+            })
+            //We don't serialize null sub resources
+            //TODO: there probably should be a way to force this...
+            .filter(j -> j.content != null)
+            .flatMap(j -> {
+
+                if (j.content instanceof HyperResource) {
+                    return Stream.of(new RelJar<>(j.rel, (HyperResource)j.content));
+                }
+
+                if (j.content instanceof HyperResource[]) {
+                    return Stream.of((HyperResource[])j.content)
+                        .map(r -> new RelJar<>(j.rel, r));
+                }
+
+                return Stream.empty();
+            })
+            .collect(Collectors.groupingBy(
+                j -> j.rel,
+                Collectors.mapping(
+                    j -> j.content,
+                    Collectors.toList()
+                )
+            ));
+
 
         // 2. Write hyper resource recursively.
         if (resources.size() > 0) {
             try {
                 jgen.writeFieldName(HAL_KEY_EMBEDDED);
                 jgen.writeStartObject();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            resources.forEach((k, v) -> {
-                try {
-                    jgen.writeFieldName(k);
 
+                for(Map.Entry<String,List<HyperResource>> e : resources.entrySet()) {
+
+                    jgen.writeFieldName(e.getKey());
+
+                    List<HyperResource> v = e.getValue();
                     if (v.size() > 1) {
                         jgen.writeStartArray();
                     }
-                    v.forEach(p -> {
-                        try {
-                            /**
-                             * "yo, dawg, I herd you like hyper resources, so I put hyper resources in your hyper resource
-                             * so you can go full embedded."
-                             *
-                             *  This is not final solution.  I know it's nasty. I just left this to be able to test everything else
-                             *  and start the discussion.
-                             *  I had tried to make a simple recursive call to serialize method, but exception happens
-                             *  due to the inconsistency of "_props" array with the new current bean value.
-                             *
-                             *  _props is a final array that is setup at construction level of the serializer class (this class). 
-                             *  Maybe a solution is to create another method based on "serializeFields" method that allows 
-                             *  to pass a _props array. We would have to generate a new BeanPropertyWriter array for every 
-                             *  subresource found and pass it to the new method.
-                             *
-                             *  Any other suggestions on how to solve this?
-                             *
-                             */
-                            HALJsonObjectMapperFactory.getInstance().writeValue(jgen, p);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+
+                    for (HyperResource p : v) {
+
+                        /**
+                         * "yo, dawg, I herd you like hyper resources, so I put hyper resources in your hyper resource
+                         * so you can go full embedded."
+                         *
+                         *  This is not final solution.  I know it's nasty. I just left this to be able to test everything else
+                         *  and start the discussion.
+                         *  I had tried to make a simple recursive call to serialize method, but exception happens
+                         *  due to the inconsistency of "_props" array with the new current bean value.
+                         *
+                         *  _props is a final array that is setup at construction level of the serializer class (this class).
+                         *  Maybe a solution is to create another method based on "serializeFields" method that allows
+                         *  to pass a _props array. We would have to generate a new BeanPropertyWriter array for every
+                         *  subresource found and pass it to the new method.
+                         *
+                         *  Any other suggestions on how to solve this?
+                         *
+                         */
+                        HALJsonObjectMapperFactory.getInstance().writeValue(jgen, p);
+
+                    }
+
                     if (v.size() > 1) {
                         jgen.writeEndArray();
                     }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
-            });
-            try {
+
                 jgen.writeEndObject();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
