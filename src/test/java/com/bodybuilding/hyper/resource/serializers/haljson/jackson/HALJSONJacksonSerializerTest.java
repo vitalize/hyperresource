@@ -178,7 +178,8 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithProfileLinkIsArray() throws IOException, JSONException {
+    public void testWriteResourceWithProfileLink() throws IOException, JSONException {
+        //we should not be treating profile any more special than any other rel
         HyperResource resource = new HyperResource() {
             public Link getProfile() {
                 return new Link("profile", "prof1");
@@ -187,6 +188,47 @@ public class HALJSONJacksonSerializerTest {
         writer.write(resource, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithProfileLinkIsArray.json");
+
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+    @Test
+    public void testWriteResourceWithLinkArrayWith1Entry() throws IOException, JSONException {
+        //If a link is exposed via a method returning an array of links, we should
+        //always serialize the rel as an array, as this is how devs indicate they want
+        //an array
+        HyperResource resource = new HyperResource() {
+            public Link[] getDogs() {
+                return new Link[]{
+                    new Link("dog", "dog1")
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWith1Entry.json");
+
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+    @Test
+    public void testWriteResourceWithLinkArrayWithTwoEntriesDifferentRels() throws IOException, JSONException {
+        //Interesting edge case here...if you return links with different rels in an array they also
+        //are forced to be serialized as an array
+        //i don't forsee anyone doing this...but they might
+        HyperResource resource = new HyperResource() {
+            public Link[] getAnimals() {
+                return new Link[]{
+                    new Link("dog", "dog1"),
+                    new Link("cat", "cat1")
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWithTwoEntriesDifferentRels.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
