@@ -2,7 +2,6 @@ package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +58,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
         writeLinks(bean, jgen);
 
-        writeEmbeddedResources(bean, jgen);
+        writeEmbeddedResources(bean, jgen, provider);
 
     }
 
@@ -151,7 +150,8 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
     private void writeEmbeddedResources(
         Object bean,
-        JsonGenerator jgen
+        JsonGenerator jgen,
+        SerializerProvider provider
     ) {
 
         // 1. Group hyper resources by rel.
@@ -171,7 +171,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                 }
             })
             //We don't serialize null sub resources
-            //TODO: there probably should be a way to force this...
+            //TODO: there probably should be a way to force embedded array even if there are no contents...
             .filter(j -> j.content != null)
             .flatMap(j -> {
 
@@ -181,6 +181,8 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
                 if (j.content instanceof HyperResource[]) {
                     return Stream.of((HyperResource[])j.content)
+                        //We don't serialize a null resource contained in an array
+                        .filter(Objects::nonNull)
                         .map(r -> new RelJar<>(j.rel, r));
                 }
 
@@ -229,7 +231,8 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                          *  Any other suggestions on how to solve this?
                          *
                          */
-                        HALJsonObjectMapperFactory.getInstance().writeValue(jgen, p);
+                        provider.defaultSerializeValue(p, jgen);
+                        //HALJsonObjectMapperFactory.getInstance().writeValue(jgen, p);
 
                     }
 
