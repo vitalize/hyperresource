@@ -67,6 +67,8 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
         JsonGenerator jgen
     ) {
 
+        HashSet<String> forceArrayRels = new HashSet<>();
+
         // Step 1: Group all links by rel.
         Map<String, List<Link>> linksMap = Arrays.stream(_props)
             .filter(
@@ -87,7 +89,9 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                 }
 
                 if (o instanceof Link[]) {
-                    return Stream.of((Link[])o);
+                    return Stream.of((Link[])o)
+                        //this is a bit ugly and side affect based, but what's another way?
+                        .peek(l -> forceArrayRels.add(l.getRel()));
                 }
 
                 return Stream.empty();
@@ -106,15 +110,17 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
                 for(Map.Entry<String,List<Link>> e : linksMap.entrySet()){
 
-                    jgen.writeFieldName(e.getKey()); // Writes rel.
-                    boolean writingLinkArray = e.getValue().size() > 1 || e.getKey().equalsIgnoreCase("profile");
+                    // Writes rel.
+                    jgen.writeFieldName(e.getKey());
+
+                    boolean writingLinkArray = e.getValue().size() > 1 || forceArrayRels.contains(e.getKey());
 
                     if (writingLinkArray) {
                         jgen.writeStartArray();
                     }
 
                     for(Link l : e.getValue()){
-                        //TODO: we should just have a serializer for these types
+                        //TODO: maybe we should just have a serializer for the link type
                         jgen.writeStartObject();
                         jgen.writeStringField("href", l.getHref());
 
@@ -213,27 +219,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                     }
 
                     for (HyperResource p : v) {
-
-                        /**
-                         * "yo, dawg, I herd you like hyper resources, so I put hyper resources in your hyper resource
-                         * so you can go full embedded."
-                         *
-                         *  This is not final solution.  I know it's nasty. I just left this to be able to test everything else
-                         *  and start the discussion.
-                         *  I had tried to make a simple recursive call to serialize method, but exception happens
-                         *  due to the inconsistency of "_props" array with the new current bean value.
-                         *
-                         *  _props is a final array that is setup at construction level of the serializer class (this class).
-                         *  Maybe a solution is to create another method based on "serializeFields" method that allows
-                         *  to pass a _props array. We would have to generate a new BeanPropertyWriter array for every
-                         *  subresource found and pass it to the new method.
-                         *
-                         *  Any other suggestions on how to solve this?
-                         *
-                         */
                         provider.defaultSerializeValue(p, jgen);
-                        //HALJsonObjectMapperFactory.getInstance().writeValue(jgen, p);
-
                     }
 
                     if (v.size() > 1) {
