@@ -71,7 +71,7 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = "{\"val\":1}";
         String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+        JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class HALJSONJacksonSerializerTest {
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneLinkControl.json");
 
         String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+        JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
@@ -339,7 +339,7 @@ public class HALJSONJacksonSerializerTest {
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneSubResourceWithOneLink.json");
         String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+        JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
@@ -365,6 +365,106 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoDepthSubresources.json");
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+
+    @Test
+    public void testWriteResourceWithSubresourceArrayWithSingleEntry() throws IOException, JSONException {
+        HyperResource resource = new HyperResource() {
+            @Rel("bb:child")
+            public HyperResource[] getResource() {
+                return new HyperResource[]{
+                    new HyperResource() {
+                        public String getFoo() {
+                            return "foo1";
+                        }
+                    }
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+
+    @Test
+    public void testWriteResourceWithSubresourceArrayWithSingleEntryAndNullEntry() throws IOException, JSONException {
+        HyperResource resource = new HyperResource() {
+            @Rel("bb:child")
+            public HyperResource[] getResource() {
+                return new HyperResource[]{
+                    new HyperResource() {
+                        public String getFoo() {
+                            return "foo1";
+                        }
+                    },
+                    null
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+
+    @Test
+    public void testWriteResourceWithSubresourceArrayWithMultiEntry() throws IOException, JSONException {
+        HyperResource resource = new HyperResource() {
+            @Rel("bb:child")
+            public HyperResource[] getResource() {
+                return new HyperResource[]{
+                    new HyperResource() {
+                        public String getFoo() {
+                            return "foo1";
+                        }
+                    },
+                    new HyperResource() {
+                        public String getFoo() {
+                            return "foo2";
+                        }
+                    },
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithMultipleEntries.json");
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, false);
+    }
+
+
+
+    @Test
+    public void testWriteResourceWithTypedSubresourceArrayWithMultiEntry() throws IOException, JSONException {
+        class TypedResource implements HyperResource {
+            final String foo;
+
+            public String getFoo() {
+                return foo;
+            }
+
+            TypedResource(String foo) {
+                this.foo = foo;
+            }
+        }
+
+        HyperResource resource = new HyperResource() {
+            @Rel("bb:child")
+            public TypedResource[] getResource() {
+                return new TypedResource[]{
+                    new TypedResource("foo1"),
+                    new TypedResource("foo2"),
+                };
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTypedSubresourceArrayWithMultipleEntries.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
