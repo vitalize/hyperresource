@@ -83,7 +83,7 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithOneLinkControl.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneLinkControl.json");
 
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
@@ -103,7 +103,7 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithTwoLinkControls.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoLinkControls.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -135,7 +135,7 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayControl.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayControl.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -146,7 +146,8 @@ public class HALJSONJacksonSerializerTest {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return new Link[]{
-                    new Link("profile", "prof1"), new Link("profile", "prof2")
+                    new Link("profile", "prof1"),
+                    new Link("profile", "prof2")
                 };
             }
 
@@ -156,7 +157,7 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithLinkArrayNSimpleLinkControl.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayNSimpleLinkControl.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -185,7 +186,7 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/internalSimpleResourceWithProfileLinkIsArray.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithProfileLinkIsArray.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
@@ -279,7 +280,7 @@ public class HALJSONJacksonSerializerTest {
             }
         };
         writer.write(resource, outputStream);
-        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
@@ -303,7 +304,7 @@ public class HALJSONJacksonSerializerTest {
             }
         };
         writer.write(resource, outputStream);
-        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoSubResourcesWithSameRel.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
@@ -336,7 +337,7 @@ public class HALJSONJacksonSerializerTest {
             }
         };
         writer.write(resource, outputStream);
-        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithOneSubResourceWithOneLink.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneSubResourceWithOneLink.json");
         String actual = outputStream.toString();
         assertEquals(expectedString, actual);
     }
@@ -363,7 +364,7 @@ public class HALJSONJacksonSerializerTest {
             }
         };
         writer.write(resource, outputStream);
-        String expectedString = readResourceAsString("hal-serializer-tests/internalResourceWithTwoDepthSubresources.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoDepthSubresources.json");
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
