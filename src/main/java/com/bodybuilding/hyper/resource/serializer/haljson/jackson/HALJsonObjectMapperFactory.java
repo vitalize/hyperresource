@@ -2,6 +2,7 @@ package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.controls.Link;
+import com.bodybuilding.hyper.resource.controls.TemplatedAction;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,9 +70,14 @@ class HALJsonObjectMapperFactory {
                     //Don't include anything that is a Hyper Control.
                     if (writer instanceof BeanPropertyWriter) {
                         BeanPropertyWriter beanWriter = (BeanPropertyWriter) writer;
+                        if (TemplatedAction.class.isAssignableFrom(beanWriter.getPropertyType())) {
+                            return false;
+                        }
+
                         if (Link.class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
+
                         if (Link[].class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
