@@ -2,6 +2,7 @@ package com.bodybuilding.hyper.resource.serializer.haljson.jackson;
 
 import com.bodybuilding.hyper.resource.HyperResource;
 import com.bodybuilding.hyper.resource.controls.Link;
+import com.bodybuilding.hyper.resource.controls.TemplatedAction;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +60,7 @@ class HALJsonObjectMapperFactory {
                 return super.findFilterId(a);
             }
         });
+
         //register the hyper_resource filter
         mapper = mapper.setFilterProvider(new SimpleFilterProvider().addFilter(HYPER_RESOURCE_FILTER_ID,
             new SimpleBeanPropertyFilter() {
@@ -68,9 +70,14 @@ class HALJsonObjectMapperFactory {
                     //Don't include anything that is a Hyper Control.
                     if (writer instanceof BeanPropertyWriter) {
                         BeanPropertyWriter beanWriter = (BeanPropertyWriter) writer;
+                        if (TemplatedAction.class.isAssignableFrom(beanWriter.getPropertyType())) {
+                            return false;
+                        }
+
                         if (Link.class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
+
                         if (Link[].class.isAssignableFrom(beanWriter.getPropertyType())) {
                             return false;
                         }
@@ -85,15 +92,21 @@ class HALJsonObjectMapperFactory {
                 }
             }
         ));
+
+
         module.setSerializerModifier(new BeanSerializerModifier() {
             @Override
-            public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-                                                      JsonSerializer<?> serializer) {
+            public JsonSerializer<?> modifySerializer(
+                SerializationConfig config,
+                BeanDescription beanDesc,
+                JsonSerializer<?> serializer
+            ) {
                 if (HyperResource.class.isAssignableFrom(beanDesc.getBeanClass())) {
                     return new HyperResourceHALSerializer((BeanSerializer) serializer);
                 }
                 return serializer;
             }
+
         });
         mapper.registerModule(module);
         return mapper;
