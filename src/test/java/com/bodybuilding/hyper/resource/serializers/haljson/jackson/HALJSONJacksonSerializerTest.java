@@ -58,7 +58,7 @@ public class HALJSONJacksonSerializerTest {
 
 
     @Test
-    public void testWriteSimpleResourceNoControls() throws IOException {
+    public void testWriteResourceNoControls() throws IOException {
         HyperResource resource = new HyperResource() {
             public int getVal() {
                 return 1;
@@ -75,7 +75,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithOneLinkControl() throws IOException {
+    public void testWriteResourceWithOneLinkControl() throws IOException {
         HyperResource resource = new HyperResource() {
             public Link getImage() {
                 return new Link("bb:image", "some/url/to/image", "small", "PNG");
@@ -90,7 +90,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithTwoLinkControls() throws IOException, JSONException {
+    public void testWriteResourceWithTwoLinkControls() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
 
             public Link getImage() {
@@ -110,7 +110,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithNullLinkControl() throws IOException, JSONException {
+    public void testWriteResourceWithNullLinkControl() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link getLink() {
                 return null;
@@ -125,7 +125,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithLinkArray() throws IOException, JSONException {
+    public void testWriteResourceWithLinkArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return new Link[]{
@@ -142,7 +142,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithLinkArrayNSimpleLink() throws IOException, JSONException {
+    public void testWriteResourceWithLinkArrayNLink() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return new Link[]{
@@ -157,14 +157,14 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
 
-        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayNSimpleLinkControl.json");
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayNLink.json");
 
         String actual = outputStream.toString();
         JSONAssert.assertEquals(expectedString, actual, false);
     }
 
     @Test
-    public void testWriteSimpleResourceWithLinkArrayNull() throws IOException {
+    public void testWriteResourceWithLinkArrayNull() throws IOException {
         HyperResource resource = new HyperResource() {
             public Link[] getProfile() {
                 return null;
@@ -235,7 +235,7 @@ public class HALJSONJacksonSerializerTest {
     }
 
     @Test
-    public void testWriteSimpleResourceWithListProperty() throws IOException, JSONException {
+    public void testWriteResourceWithListProperty() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public List<String> getList() {
                 List<String> list = new ArrayList<String>();
