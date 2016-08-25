@@ -59,6 +59,7 @@ class HALJsonObjectMapperFactory {
                 return super.findFilterId(a);
             }
         });
+
         //register the hyper_resource filter
         mapper = mapper.setFilterProvider(new SimpleFilterProvider().addFilter(HYPER_RESOURCE_FILTER_ID,
             new SimpleBeanPropertyFilter() {
@@ -85,15 +86,21 @@ class HALJsonObjectMapperFactory {
                 }
             }
         ));
+
+
         module.setSerializerModifier(new BeanSerializerModifier() {
             @Override
-            public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-                                                      JsonSerializer<?> serializer) {
+            public JsonSerializer<?> modifySerializer(
+                SerializationConfig config,
+                BeanDescription beanDesc,
+                JsonSerializer<?> serializer
+            ) {
                 if (HyperResource.class.isAssignableFrom(beanDesc.getBeanClass())) {
                     return new HyperResourceHALSerializer((BeanSerializer) serializer);
                 }
                 return serializer;
             }
+
         });
         mapper.registerModule(module);
         return mapper;
