@@ -113,14 +113,15 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                     // Writes rel.
                     jgen.writeFieldName(e.getKey());
 
-                    boolean writingLinkArray = e.getValue().size() > 1 || forceArrayRels.contains(e.getKey());
+                    boolean writingAsArray = e.getValue().size() > 1 || forceArrayRels.contains(e.getKey());
 
-                    if (writingLinkArray) {
+                    if (writingAsArray) {
                         jgen.writeStartArray();
                     }
 
                     for(Link l : e.getValue()){
-                        //TODO: maybe we should just have a serializer for the link type
+                        //TODO: maybe we should just have a serializer for the link type, then the output code
+                        //could be de-duped and shared
                         jgen.writeStartObject();
                         jgen.writeStringField("href", l.getHref());
 
@@ -132,7 +133,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                         }
                         jgen.writeEndObject();
                     }
-                    if (writingLinkArray) {
+                    if (writingAsArray) {
                         jgen.writeEndArray();
                     }
                 }
@@ -159,6 +160,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
         JsonGenerator jgen,
         SerializerProvider provider
     ) {
+        HashSet<String> forceArrayRels = new HashSet<>();
 
         // 1. Group hyper resources by rel.
         Map<String, List<HyperResource>> resources = Arrays.stream(_props)
@@ -186,6 +188,9 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                 }
 
                 if (j.content instanceof HyperResource[]) {
+                    //If they are returning an array, then we force it to be output as an array
+                    forceArrayRels.add(j.rel);
+
                     return Stream.of((HyperResource[])j.content)
                         //We don't serialize a null resource contained in an array
                         .filter(Objects::nonNull)
@@ -214,7 +219,10 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                     jgen.writeFieldName(e.getKey());
 
                     List<HyperResource> v = e.getValue();
-                    if (v.size() > 1) {
+
+                    boolean writingAsArray = e.getValue().size() > 1 || forceArrayRels.contains(e.getKey());
+
+                    if (writingAsArray) {
                         jgen.writeStartArray();
                     }
 
@@ -222,7 +230,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                         provider.defaultSerializeValue(p, jgen);
                     }
 
-                    if (v.size() > 1) {
+                    if (writingAsArray) {
                         jgen.writeEndArray();
                     }
                 }
