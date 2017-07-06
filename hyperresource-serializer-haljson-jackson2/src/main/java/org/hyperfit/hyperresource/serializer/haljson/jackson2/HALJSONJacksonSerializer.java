@@ -5,15 +5,12 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.*;
 import org.hyperfit.hyperresource.controls.Link;
 import org.hyperfit.hyperresource.controls.TemplatedAction;
 import org.hyperfit.hyperresource.serializer.HyperResourceSerializer;
 
 import org.hyperfit.hyperresource.HyperResource;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -29,7 +26,17 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
  */
 public class HALJSONJacksonSerializer implements HyperResourceSerializer {
 
-    private static final String HYPER_RESOURCE_FILTER_ID = "hyper_resource";
+    private static final String HYPER_RESOURCE_FILTER_ID = "org.hyperfit.hyperresource";
+
+    //TOOD: this should be configurable based on the constructor of the HALJSONJacksonSerializer
+    //so people could register their own controls maybe.
+    private static final Class<?>[] HYPER_CONTROL_CLASSES = new Class[]{
+        TemplatedAction.class,
+        Link.class,
+        Link[].class,
+        HyperResource.class,
+        HyperResource[].class
+    };
 
     /**
      * An ObjectMapper to suit the specific needs of serializing an
@@ -44,7 +51,7 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
      * to identify the "hyper_resource" filter every time a {@code HyperResource} instance is found.</li>
      * <li>2.The hyper_resource filter is setup to exclude hyper controls from default bean serialization.</li>
      * <li>3.{@code BeanSerializerModifier} is configured in {@code ObjectMapper} to add custom serialization
-     * to {@code HyperResouce} objects.</li>
+     * to {@code HyperResource} objects.</li>
      * </ul>
      *
      * @see HyperResource
@@ -69,28 +76,20 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
                 HYPER_RESOURCE_FILTER_ID,
                 new SimpleBeanPropertyFilter() {
 
+
                     @Override
                     protected boolean include(PropertyWriter writer) {
                         //Don't include anything that is a Hyper Control.
                         if (writer instanceof BeanPropertyWriter) {
-                            BeanPropertyWriter beanWriter = (BeanPropertyWriter) writer;
-                            if (TemplatedAction.class.isAssignableFrom(beanWriter.getPropertyType())) {
-                                return false;
+                            JavaType propertyType = writer.getType();
+
+                            for(Class<?> controlClass : HYPER_CONTROL_CLASSES) {
+
+                                if (propertyType.isTypeOrSubTypeOf(controlClass)) {
+                                    return false;
+                                }
                             }
 
-                            if (Link.class.isAssignableFrom(beanWriter.getPropertyType())) {
-                                return false;
-                            }
-
-                            if (Link[].class.isAssignableFrom(beanWriter.getPropertyType())) {
-                                return false;
-                            }
-                            if (HyperResource.class.isAssignableFrom(beanWriter.getPropertyType())) {
-                                return false;
-                            }
-                            if (HyperResource[].class.isAssignableFrom(beanWriter.getPropertyType())) {
-                                return false;
-                            }
                         }
                         return super.include(writer);
                     }
