@@ -1,0 +1,12 @@
+{
+  "_embedded":{
+    "bb:child1":{
+      "foo":"foo",
+      "_embedded":{
+        "bb:child2":{
+          "foo":"foo"
+        }
+      }
+    }
+  }
+}

@@ -79,7 +79,7 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         writer.flush();
 
         //Not closing as it seems we should not close the passed in outputstream
-        //for example spring wants to flush the output stream see https://github.com/spring-projects/spring-framework/blob/56db1af11dbe51c88c753421e022bc5389361c04/spring-web/src/main/java/org/springframework/http/converter/AbstractGenericHttpMessageConverter.java#L101
+        //for example spring4 wants to flush the output stream see https://github.com/spring-projects/spring-framework/blob/56db1af11dbe51c88c753421e022bc5389361c04/spring-web/src/main/java/org/springframework/http/converter/AbstractGenericHttpMessageConverter.java#L101
         //after a call to write..so assume that above layers will actually close it
         //though some converters do close on success see https://github.com/spring-projects/spring-framework/blob/56db1af11dbe51c88c753421e022bc5389361c04/spring-web/src/main/java/org/springframework/http/converter/json/GsonHttpMessageConverter.java#L203
         //the StringConverter flushes but doesn't close https://github.com/spring-projects/spring-framework/blob/56db1af11dbe51c88c753421e022bc5389361c04/spring-web/src/main/java/org/springframework/http/converter/StringHttpMessageConverter.java#L107 which calls https://github.com/spring-projects/spring-framework/blob/56db1af11dbe51c88c753421e022bc5389361c04/spring-core/src/main/java/org/springframework/util/StreamUtils.java#L110
@@ -87,5 +87,5 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         //asked at http://stackoverflow.com/questions/37937583/do-i-need-to-flush-or-close-the-outputstream-in-my-custom-spring-web-messageconv
 
     }
-    
+
 }

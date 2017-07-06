@@ -1,0 +1,8 @@
+{
+  "_embedded": {
+    "bb:child":[
+      {"foo":"foo1"},
+      {"foo":"foo2"}
+    ]
+  }
+}
