@@ -13,7 +13,10 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("/testHandlebarsTemplateWorksWithController/{one}/{two}")
-    public TwoVariableHyperResource testHandlebarsTemplateWorksWithController(@PathVariable String one, @PathVariable String two) {
+    public TwoVariableHyperResource testHandlebarsTemplateWorksWithController(
+        @PathVariable String one,
+        @PathVariable String two
+    ) {
         return new TwoVariableHyperResource(one, two);
     }
 
@@ -29,7 +32,8 @@ public class TestController {
     }
 
     @RequestMapping("/testExceptionInControllerWrappedByDefaultHandlerExceptionResolver")
-    public HttpEntity<NoTemplateHyperResource> testExceptionInControllerWrappedByDefaultHandlerExceptionResolver() throws HttpMediaTypeNotSupportedException {
+    public HttpEntity<NoTemplateHyperResource> testExceptionInControllerWrappedByDefaultHandlerExceptionResolver()
+        throws HttpMediaTypeNotSupportedException {
         throw new HttpMediaTypeNotSupportedException("testExceptionInControllerWrappedByDefaultHandlerExceptionResolver");
     }
 

@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import test.TestUtils;
 
 
@@ -68,6 +69,7 @@ public class TestControllerMVCTest {
             get("/testHandlebarsTemplateWorksWithController/{one}/{two}", oneIn, twoIn)
             .accept(MediaType.TEXT_HTML)
         )
+        //.andDo(MockMvcResultHandlers.print())
         .andExpect(status().isOk())
         .andExpect(content().contentType("text/html"))
         .andExpect(content().string(containsString(oneIn)))
