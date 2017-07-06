@@ -9,8 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>hyperresource-serializer-handlebars</artifactId>
-
+  <artifactId>hyperresource-serializer-haljson-jackson</artifactId>
 
   <dependencies>
     <dependency>
@@ -20,23 +19,31 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.jknack</groupId>
-      <artifactId>handlebars</artifactId>
-      <version>4.0.6</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.7.4</version>
     </dependency>
-
 
     <dependency>
-      <groupId>org.hyperfit</groupId>
-      <artifactId>hyperresource</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
+      <groupId>org.skyscreamer</groupId>
+      <artifactId>jsonassert</artifactId>
+      <version>1.5.0</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path-assert</artifactId>
+      <version>2.0.0</version>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -49,4 +56,5 @@
 
     </plugins>
   </build>
+
 </project>

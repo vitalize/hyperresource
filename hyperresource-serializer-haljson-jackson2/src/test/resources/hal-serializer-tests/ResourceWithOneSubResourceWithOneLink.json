@@ -1,0 +1,11 @@
+{
+  "_embedded":{
+    "bb:child":{
+      "_links":{
+        "rel":{
+          "href":"some/url"
+        }
+      }
+    }
+  }
+}
