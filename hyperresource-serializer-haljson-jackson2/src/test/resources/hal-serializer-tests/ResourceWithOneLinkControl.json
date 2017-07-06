@@ -1,0 +1,9 @@
+{
+  "_links":{
+    "bb:image":{
+      "href":"some/url/to/image",
+      "name":"small",
+      "type":"PNG"
+    }
+  }
+}

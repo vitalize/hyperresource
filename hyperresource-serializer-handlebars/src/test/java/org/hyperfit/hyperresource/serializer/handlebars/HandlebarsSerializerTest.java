@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpInputMessage;
 
 import com.github.jknack.handlebars.Handlebars;
 import test.TestUtils;
@@ -41,8 +40,6 @@ public class HandlebarsSerializerTest {
     @Mock
     TemplateLoader mockTemplateLoader;
 
-    @Mock
-    HttpInputMessage mockInput;
 
     @Mock
     OutputStream mockOutputStream;
@@ -129,12 +126,12 @@ public class HandlebarsSerializerTest {
     public void testGetContentTypes(){
         assertThat(subject.getContentTypes(), Matchers.contains("something/nothing"));
 
-        String newType = TestUtils.randomString();
+        String newType = TestUtils.uniqueString();
         subject = new HandlebarsSerializer(mockHandlebars, newType);
 
         assertThat(subject.getContentTypes(), Matchers.contains(newType));
 
-        String newType2 = TestUtils.randomString();
+        String newType2 = TestUtils.uniqueString();
         subject = new HandlebarsSerializer(mockHandlebars, newType2, newType);
 
         assertThat(subject.getContentTypes(), Matchers.contains(newType2, newType));
@@ -198,7 +195,7 @@ public class HandlebarsSerializerTest {
         when(mockHandlebars.compile("FakeHyperResource"))
             .thenReturn(mockTemplate);
 
-        final String fakeResult = TestUtils.randomString();
+        final String fakeResult = TestUtils.uniqueString();
 
         doAnswer(
             i -> {

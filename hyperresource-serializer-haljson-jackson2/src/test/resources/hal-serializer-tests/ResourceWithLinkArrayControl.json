@@ -1,0 +1,8 @@
+{
+  "_links":{
+    "profile":[
+      {"href":"prof1"},
+      {"href":"prof2"}
+    ]
+  }
+}

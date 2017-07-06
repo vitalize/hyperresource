@@ -8,10 +8,10 @@
 
 
   <modules>
-    <module>hyperresource-spring</module>
+    <module>hyperresource-spring4</module>
     <module>hyperresource-assemblers</module>
     <module>hyperresource</module>
-    <module>hyperresource-serializer-haljson-jackson</module>
+    <module>hyperresource-serializer-haljson-jackson2</module>
     <module>hyperresource-serializer-handlebars</module>
   </modules>
 
