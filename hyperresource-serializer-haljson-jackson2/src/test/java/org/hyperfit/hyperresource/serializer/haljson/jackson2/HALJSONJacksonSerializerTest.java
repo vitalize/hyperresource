@@ -328,6 +328,35 @@ public class HALJSONJacksonSerializerTest {
         JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
     }
 
+
+    @Test
+    public void testWriteResourceWithTwoSameSubResourcesDifferentRels() throws IOException, JSONException {
+        HyperResource sub = new HyperResource() {
+            public String getFoo() {
+                return "foo";
+            }
+        };
+
+        HyperResource resource = new HyperResource() {
+            @Rel("bb:children1")
+            public HyperResource getResource1() {
+                return sub;
+            }
+
+            @Rel("bb:children2")
+            public HyperResource getResource2() {
+                return sub;
+            }
+        };
+        writer.write(resource, outputStream);
+        String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSameSubResourcesDifferentRels.json");
+        String actual = outputStream.toString();
+        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+    }
+
+
+
+
     @Test
     public void testWriteResourceWithSubresouceArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
@@ -409,14 +438,14 @@ public class HALJSONJacksonSerializerTest {
             public HyperResource getResource() {
                 return new HyperResource() {
                     public String getFoo() {
-                        return "foo";
+                        return "foo£";
                     }
 
                     @Rel("bb:child2")
                     public HyperResource getResource() {
                         return new HyperResource() {
                             public String getFoo() {
-                                return "foo";
+                                return "foo£";
                             }
                         };
                     }
