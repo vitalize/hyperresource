@@ -69,7 +69,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
         HashSet<String> forceArrayRels = new HashSet<>();
 
         // Step 1: Group all links by rel.
-        Map<String, List<Link>> linksMap = Arrays.stream(_props)
+        Map<String, List<Link>> linksByRel = Arrays.stream(_props)
             .filter(
                 p -> Link.class.isAssignableFrom(p.getPropertyType()) || Link[].class.isAssignableFrom(p.getPropertyType())
             )
@@ -102,12 +102,12 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
 
         // Step 2: Serialize all links grouped by rel.
-        if (linksMap.size() > 0) {
+        if (linksByRel.size() > 0) {
             try {
                 jgen.writeFieldName(HAL_KEY_LINKS);
                 jgen.writeStartObject();
 
-                for(Map.Entry<String,List<Link>> e : linksMap.entrySet()){
+                for(Map.Entry<String,List<Link>> e : linksByRel.entrySet()){
 
                     // Writes rel.
                     jgen.writeFieldName(e.getKey());
@@ -162,7 +162,7 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
         HashSet<String> forceArrayRels = new HashSet<>();
 
         // 1. Group hyper resources by rel.
-        Map<String, List<HyperResource>> resources = Arrays.stream(_props)
+        Map<String, List<HyperResource>> resourcesByRel = Arrays.stream(_props)
             .filter(
                 p -> HyperResource.class.isAssignableFrom(p.getPropertyType()) || HyperResource[].class.isAssignableFrom(p.getPropertyType())
             )
@@ -208,12 +208,12 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
 
 
         // 2. Write hyper resource recursively.
-        if (resources.size() > 0) {
+        if (resourcesByRel.size() > 0) {
             try {
                 jgen.writeFieldName(HAL_KEY_EMBEDDED);
                 jgen.writeStartObject();
 
-                for(Map.Entry<String,List<HyperResource>> e : resources.entrySet()) {
+                for(Map.Entry<String,List<HyperResource>> e : resourcesByRel.entrySet()) {
 
                     jgen.writeFieldName(e.getKey());
 
