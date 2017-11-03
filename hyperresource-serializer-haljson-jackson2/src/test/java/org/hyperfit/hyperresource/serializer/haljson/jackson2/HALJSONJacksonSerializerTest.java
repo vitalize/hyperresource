@@ -79,7 +79,7 @@ public class HALJSONJacksonSerializerTest {
     public void testWriteResourceWithOneLinkControl() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
             public Link getImage() {
-                return new Link("bb:image", "some/url/to/image", "small", "PNG");
+                return new Link("bb:image", "some/url/to/image", "small", "PNG", "A TITLE");
             }
         };
         writer.write(resource, outputStream);
