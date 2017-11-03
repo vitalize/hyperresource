@@ -17,6 +17,10 @@ public class Link {
         this(rel, href, null, null, null);
     }
 
+    public Link(String rel, String href, String name) {
+        this(rel, href, name, null, null);
+    }
+
     public Link(String rel, String href, String name, String type) {
         this(rel, href, name, type, null);
     }

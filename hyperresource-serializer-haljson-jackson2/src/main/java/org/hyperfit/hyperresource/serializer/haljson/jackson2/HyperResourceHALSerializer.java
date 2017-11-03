@@ -130,6 +130,11 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
                         if (!isEmpty(l.getType())) {
                             jgen.writeStringField("type", l.getType());
                         }
+
+                        //TODO: should this actually be based on just null? ie should we let "" values
+                        if (!isEmpty(l.getTitle())) {
+                            jgen.writeStringField("title", l.getTitle());
+                        }
                         jgen.writeEndObject();
                     }
                     if (writingAsArray) {
