@@ -119,14 +119,16 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
 
     }
 
-    private static final List<String> MEDIA_TYPES = Collections.unmodifiableList(
+    public static final String CONTENT_TYPE_HAL_JSON = "application/hal+json";
+
+    private static final List<String> CONTENT_TYPES = Collections.unmodifiableList(
         Collections.singletonList(
-            "application/hal+json"
+            CONTENT_TYPE_HAL_JSON
         )
     );
 
     public List<String> getContentTypes(){
-        return MEDIA_TYPES;
+        return CONTENT_TYPES;
     }
 
 

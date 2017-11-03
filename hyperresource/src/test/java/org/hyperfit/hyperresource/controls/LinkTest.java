@@ -39,7 +39,17 @@ public class LinkTest {
         }
 
 
-        //now the other constructor
+        //now the other constructors
+        try {
+            new Link("rel", null, null);
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("href cannot be null or empty"));
+        }
+
+
         try {
             new Link("rel", null, null, null);
 
@@ -107,6 +117,16 @@ public class LinkTest {
 
         //now the other constructor
         try {
+            new Link(null, "href", null);
+
+            fail("expected exception not thrown");
+
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("rel cannot be null or empty"));
+        }
+
+
+        try {
             new Link(null, "href", null, null);
 
             fail("expected exception not thrown");
@@ -139,7 +159,7 @@ public class LinkTest {
     }
 
 
-    
+
     @Test
     public void testConstructSimpleLink() {
         Link link = new Link("rel", "href");
@@ -148,7 +168,7 @@ public class LinkTest {
         assertNull(link.getName());
         assertNull(link.getType());
     }
-    
+
     @Test
     public void testConstructFullLink() {
         Link link = new Link("rel", "href", "name", "type");
@@ -157,6 +177,6 @@ public class LinkTest {
         assertEquals("name", link.getName());
         assertEquals("type", link.getType());
     }
-    
+
 
 }
