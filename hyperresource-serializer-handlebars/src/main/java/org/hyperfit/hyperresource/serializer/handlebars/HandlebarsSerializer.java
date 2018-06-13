@@ -67,10 +67,19 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         return false;
     }
 
+    private Template compileTemplateFor(
+        Class<? extends HyperResource> resourceClass
+    ) throws IOException {
+        String templateName = resourceClass.getSimpleName();
+        return handlebars.compile(templateName);
+    }
+
     @Override
-    public void write(HyperResource resource, OutputStream output) throws IOException {
-        String templateName = resource.getClass().getSimpleName();
-        Template template = handlebars.compile(templateName);
+    public void write(
+        HyperResource resource,
+        OutputStream output
+    ) throws IOException {
+        Template template = compileTemplateFor(resource.getClass());
         OutputStreamWriter writer = new OutputStreamWriter(output);
         template.apply(resource, writer);
 
@@ -86,6 +95,14 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
 
         //asked at http://stackoverflow.com/questions/37937583/do-i-need-to-flush-or-close-the-outputstream-in-my-custom-spring-web-messageconv
 
+    }
+
+    @Override
+    public String writeToString(
+        HyperResource resource
+    ) throws IOException {
+        Template template = compileTemplateFor(resource.getClass());
+        return template.apply(resource);
     }
 
 }
