@@ -133,8 +133,17 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
 
 
 
-    public void write(HyperResource resource, OutputStream output) throws IOException {
+    public void write(
+        HyperResource resource,
+        OutputStream output
+    ) throws IOException {
         MAPPER.writeValue(output, resource);
+    }
+
+    public String writeToString(
+        HyperResource resource
+    ) throws IOException {
+        return MAPPER.writeValueAsString(resource);
     }
 
 

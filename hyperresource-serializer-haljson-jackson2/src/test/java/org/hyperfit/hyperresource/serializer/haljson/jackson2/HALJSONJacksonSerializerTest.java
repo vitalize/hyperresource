@@ -71,8 +71,18 @@ public class HALJSONJacksonSerializerTest {
         writer.write(resource, outputStream);
 
         String expectedString = "{\"val\":1}";
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -86,8 +96,18 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneLinkControl.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -106,8 +126,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoLinkControls.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -121,8 +150,18 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = "{}";
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -138,8 +177,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayControl.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -160,8 +208,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayNLink.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -174,8 +231,16 @@ public class HALJSONJacksonSerializerTest {
         writer.write(resource, outputStream);
 
         String expectedString = "{}";
-        String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+
+        assertEquals(
+            expectedString,
+            outputStream.toString()
+        );
+
+        assertEquals(
+            expectedString,
+            writer.writeToString(resource)
+        );
     }
 
     @Test
@@ -190,8 +255,18 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithProfileLinkIsArray.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -210,8 +285,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWith1Entry.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -231,8 +315,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWithTwoEntriesDifferentRels.json");
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -249,8 +342,17 @@ public class HALJSONJacksonSerializerTest {
 
         String expectedString = "{\"list\":[\"foo1\",\"foo2\"]}";
 
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -267,8 +369,16 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = "{\"_embedded\":{\"bb:child\":{\"foo\":\"foo\"}}}";
-        String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+
+        assertEquals(
+            expectedString,
+            outputStream.toString()
+        );
+
+        assertEquals(
+            expectedString,
+            writer.writeToString(resource)
+        );
     }
 
     @Test
@@ -284,8 +394,16 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = "{\"_embedded\":{\"resource\":{\"foo\":\"foo\"}}}";
-        String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+
+        assertEquals(
+            expectedString,
+            outputStream.toString()
+        );
+
+        assertEquals(
+            expectedString,
+            writer.writeToString(resource)
+        );
     }
 
     @Test
@@ -297,8 +415,16 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = "{}";
-        String actual = outputStream.toString();
-        assertEquals(expectedString, actual);
+
+        assertEquals(
+            expectedString,
+            outputStream.toString()
+        );
+
+        assertEquals(
+            expectedString,
+            writer.writeToString(resource)
+        );
     }
 
     @Test
@@ -324,8 +450,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -350,8 +486,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSameSubResourcesDifferentRels.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -377,8 +523,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -393,8 +549,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = "{}";
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -409,8 +575,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = "{}";
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -427,8 +603,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneSubResourceWithOneLink.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
     @Test
@@ -454,8 +640,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoDepthSubresources.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -476,8 +672,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -498,8 +704,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -524,8 +740,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithMultipleEntries.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -555,8 +781,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTypedSubresourceArrayWithMultipleEntries.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 
@@ -574,8 +810,18 @@ public class HALJSONJacksonSerializerTest {
         };
         writer.write(resource, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTemplatedAction.json");
-        String actual = outputStream.toString();
-        JSONAssert.assertEquals(expectedString, actual, NON_EXTENSIBLE);
+
+        JSONAssert.assertEquals(
+            expectedString,
+            outputStream.toString(),
+            NON_EXTENSIBLE
+        );
+
+        JSONAssert.assertEquals(
+            expectedString,
+            writer.writeToString(resource),
+            NON_EXTENSIBLE
+        );
     }
 
 }
