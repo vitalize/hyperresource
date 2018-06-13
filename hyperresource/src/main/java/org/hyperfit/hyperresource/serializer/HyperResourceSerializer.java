@@ -21,4 +21,6 @@ public interface HyperResourceSerializer {
     boolean canWrite(Class<? extends HyperResource> resourceClass);
 
     void write(HyperResource resource, OutputStream output) throws IOException;
+
+    String writeToString(HyperResource resource) throws IOException;
 }

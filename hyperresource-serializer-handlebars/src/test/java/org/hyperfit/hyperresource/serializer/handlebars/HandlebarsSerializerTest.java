@@ -207,9 +207,24 @@ public class HandlebarsSerializerTest {
 
         subject.write(fakeResource, fakeOutputStream);
 
-        assertEquals("The result written to writer must make it to the passed in output stream", fakeResult, fakeOutputStream.toString());
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            fakeOutputStream.toString()
+        );
 
         assertTrue("flush must be called", flushCalled.get());
+
+        //This feels like cheating
+
+        when(mockTemplate.apply(same(fakeResource)))
+            .thenReturn(fakeResult);
+
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            subject.writeToString(fakeResource)
+        );
 
     }
 
