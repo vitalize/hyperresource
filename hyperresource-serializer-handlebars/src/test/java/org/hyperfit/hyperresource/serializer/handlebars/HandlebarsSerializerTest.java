@@ -229,5 +229,84 @@ public class HandlebarsSerializerTest {
     }
 
 
+    @Test
+    public void testCanWriteRespectsHBSTemplateAnnotation() throws IOException {
+
+        @HBSTemplate("XYZ")
+        class SomeResource implements HyperResource {
+
+        }
+
+        when(mockTemplateLoader.sourceAt("XYZ"))
+            .thenReturn(mock(TemplateSource.class));
+
+        assertTrue(
+            subject.canWrite(
+                SomeResource.class
+            )
+        );
+    }
+
+
+    @Test
+    public void testWriteRespectsHBSTemplateAnnotation() throws IOException {
+
+        @HBSTemplate("XYZ")
+        class SomeResource implements HyperResource {
+
+        }
+
+        AtomicBoolean flushCalled = new AtomicBoolean(false);
+
+        SomeResource fakeResource = new SomeResource();
+        ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream(){
+
+            @Override
+            public void close() throws IOException {
+                fail("close should not be called");
+            }
+
+
+            @Override
+            public void flush() throws IOException {
+                flushCalled.set(true);
+            }
+        };
+
+        when(mockHandlebars.compile("XYZ"))
+            .thenReturn(mockTemplate);
+
+        final String fakeResult = TestUtils.uniqueString();
+
+        doAnswer(
+            i -> {
+                ((Writer) i.getArguments()[1]).write(fakeResult);
+                return null;
+            }
+        )
+            .when(mockTemplate).apply(same(fakeResource), Mockito.any(Writer.class));
+
+        subject.write(fakeResource, fakeOutputStream);
+
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            fakeOutputStream.toString()
+        );
+
+        assertTrue("flush must be called", flushCalled.get());
+
+        //This feels like cheating
+
+        when(mockTemplate.apply(same(fakeResource)))
+            .thenReturn(fakeResult);
+
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            subject.writeToString(fakeResource)
+        );
+
+    }
 
 }

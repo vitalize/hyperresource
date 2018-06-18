@@ -47,7 +47,8 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
 
     @Override
     public boolean canWrite(Class<? extends HyperResource> resourceClass) {
-        String templateName = resourceClass.getSimpleName();
+        String templateName = determineTemplateName(resourceClass);
+
         if(missingTemplateLoaders.contains(templateName)){
             return false;
         }
@@ -67,11 +68,24 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         return false;
     }
 
+    private String determineTemplateName(
+        Class<? extends HyperResource> resourceClass
+    ) {
+        HBSTemplate hbsTemplateAnnotation = resourceClass.getAnnotation(HBSTemplate.class);
+
+        return (hbsTemplateAnnotation == null) ?
+            resourceClass.getSimpleName()
+            :
+            hbsTemplateAnnotation.value()
+            ;
+    }
+
     private Template compileTemplateFor(
         Class<? extends HyperResource> resourceClass
     ) throws IOException {
-        String templateName = resourceClass.getSimpleName();
-        return handlebars.compile(templateName);
+        return handlebars.compile(
+            determineTemplateName(resourceClass)
+        );
     }
 
     @Override
