@@ -5,7 +5,7 @@
   <parent>
     <artifactId>hyperresource-parent</artifactId>
     <groupId>org.hyperfit</groupId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -68,6 +68,12 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
       </plugin>
+
+      <!-- http://pitest.org/quickstart/maven/ -->
+      <!--TODO: re-enable and fix poor mutation coverage plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+      </plugin-->
 
     </plugins>
   </build>

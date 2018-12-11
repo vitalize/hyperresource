@@ -6,16 +6,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpResponse;
 import test.TestUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
@@ -27,7 +31,10 @@ import static org.mockito.Mockito.when;
 public class WriteOnlyHyperResourceMessageConverterTest {
 
     @Mock
-    HttpOutputMessage mockOutput;
+    ServletServerHttpResponse mockServletServerHttpResponse;
+
+    @Mock
+    HttpOutputMessage mockHttpOutputMessage;
 
     @Mock
     HttpInputMessage mockInput;
@@ -37,6 +44,9 @@ public class WriteOnlyHyperResourceMessageConverterTest {
 
     @Mock
     HyperResourceSerializer mockHyperResourceSerializer;
+
+    @Mock
+    HttpServletResponse mockHttpServletResponse;
 
     @Before
     public void setUp(){
@@ -191,7 +201,7 @@ public class WriteOnlyHyperResourceMessageConverterTest {
     }
 
     @Test
-    public void testWriteInternal() throws IOException {
+    public void testWriteInternalNoLocale() throws IOException {
         String contentType = "application/" + TestUtils.uniqueString();
 
         when(mockHyperResourceSerializer.getContentTypes())
@@ -202,16 +212,119 @@ public class WriteOnlyHyperResourceMessageConverterTest {
         HyperResource fakeHyperResource = new HyperResource() {};
 
 
-        when(mockOutput.getBody())
+        when(mockServletServerHttpResponse.getBody())
             .thenReturn(mockOutputStream);
 
-        subject.writeInternal(fakeHyperResource, mockOutput);
+        subject.writeInternal(fakeHyperResource, mockServletServerHttpResponse);
 
-        verify(mockHyperResourceSerializer).write(fakeHyperResource, mockOutputStream);
+        verify(mockHyperResourceSerializer)
+            .write(fakeHyperResource, null, mockOutputStream);
 
+    }
+
+    @Test
+    public void testWriteInternalContentTypeHeaderPresent() throws IOException {
+        String contentType = "application/" + TestUtils.uniqueString();
+
+        when(mockHyperResourceSerializer.getContentTypes())
+            .thenReturn(Collections.singletonList(contentType));
+
+        WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
+
+        HyperResource fakeHyperResource = new HyperResource() {};
+
+
+        when(mockServletServerHttpResponse.getBody())
+            .thenReturn(mockOutputStream);
+
+
+        Locale ptBR = new Locale("pt", "BR");
+
+        HttpHeaders fakeHeaders = new HttpHeaders();
+        fakeHeaders.add(
+            HttpHeaders.CONTENT_LANGUAGE,
+            ptBR.toLanguageTag()
+        );
+
+        when(mockServletServerHttpResponse.getHeaders())
+            .thenReturn(fakeHeaders);
+
+        subject.writeInternal(fakeHyperResource, mockServletServerHttpResponse);
+
+        verify(mockHyperResourceSerializer)
+            .write(fakeHyperResource, ptBR, mockOutputStream);
+
+    }
+
+    @Test
+    public void testWriteInternalContentTypeHeaderNotPresentOutputNotHttpServletResponse() throws IOException {
+        String contentType = "application/" + TestUtils.uniqueString();
+
+        when(mockHyperResourceSerializer.getContentTypes())
+            .thenReturn(Collections.singletonList(contentType));
+
+        WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
+
+        HyperResource fakeHyperResource = new HyperResource() {};
+
+
+        when(mockHttpOutputMessage.getBody())
+            .thenReturn(mockOutputStream);
+
+
+        subject.writeInternal(fakeHyperResource, mockHttpOutputMessage);
+
+        verify(mockHyperResourceSerializer)
+            .write(fakeHyperResource, null, mockOutputStream);
+
+    }
+
+    @Test
+    public void testWriteInternalContentTypeHeaderNotPresentLocaleOnServletResponse() throws IOException {
+        String contentType = "application/" + TestUtils.uniqueString();
+
+        when(mockHyperResourceSerializer.getContentTypes())
+            .thenReturn(Collections.singletonList(contentType));
+
+        WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(mockHyperResourceSerializer);
+
+        HyperResource fakeHyperResource = new HyperResource() {};
+
+
+        when(mockServletServerHttpResponse.getBody())
+            .thenReturn(mockOutputStream);
+
+
+        Locale ptBR = new Locale("pt", "BR");
+
+        when(mockServletServerHttpResponse.getServletResponse())
+            .thenReturn(mockHttpServletResponse);
+
+        when(mockHttpServletResponse.getLocale())
+            .thenReturn(ptBR);
+
+        subject.writeInternal(fakeHyperResource, mockServletServerHttpResponse);
+
+        verify(mockHyperResourceSerializer)
+            .write(fakeHyperResource, ptBR, mockOutputStream);
 
     }
 
 
+    @Test
+    public void testGetSerializer() {
+        String contentType = "application/" + TestUtils.uniqueString();
 
+        when(mockHyperResourceSerializer.getContentTypes())
+            .thenReturn(Collections.singletonList(contentType));
+
+        WriteOnlyHyperResourceMessageConverter subject = new WriteOnlyHyperResourceMessageConverter(
+            mockHyperResourceSerializer
+        );
+
+        assertSame(
+            mockHyperResourceSerializer,
+            subject.getSerializer()
+        );
+    }
 }

@@ -5,6 +5,7 @@ import org.hyperfit.hyperresource.HyperResource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Locale;
 
 public interface HyperResourceSerializer {
 
@@ -20,7 +21,14 @@ public interface HyperResourceSerializer {
      */
     boolean canWrite(Class<? extends HyperResource> resourceClass);
 
-    void write(HyperResource resource, OutputStream output) throws IOException;
+    void write(
+        HyperResource resource,
+        Locale locale,
+        OutputStream output
+    ) throws IOException;
 
-    String writeToString(HyperResource resource) throws IOException;
+    String writeToString(
+        HyperResource resource,
+        Locale locale
+    ) throws IOException;
 }

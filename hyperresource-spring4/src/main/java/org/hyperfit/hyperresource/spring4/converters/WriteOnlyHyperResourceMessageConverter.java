@@ -2,14 +2,18 @@ package org.hyperfit.hyperresource.spring4.converters;
 
 import org.hyperfit.hyperresource.HyperResource;
 import org.hyperfit.hyperresource.serializer.HyperResourceSerializer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.server.ServletServerHttpResponse;
 
+import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -51,10 +55,42 @@ public class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageC
     }
 
     @Override
-    protected void writeInternal(HyperResource hyperResource, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+    protected void writeInternal(
+        HyperResource hyperResource,
+        HttpOutputMessage outputMessage
+    ) throws IOException, HttpMessageNotWritableException {
         //normally i'd check for outputMessage being null...but it'll throw in the
         //base class' write() way before it gets here so no need for the double check
-        serializer.write(hyperResource, outputMessage.getBody());
+
+        Locale locale = Optional.ofNullable(outputMessage.getHeaders())
+            .map(
+                h -> h.getFirst(HttpHeaders.CONTENT_LANGUAGE)
+            )
+            .map(Locale::forLanguageTag)
+            .orElseGet(
+                //TODO: when a logging implementation is picked log a info (or warn?) message about no content language header
+                () -> Optional.of(outputMessage)
+                    .map(
+                        m -> m instanceof ServletServerHttpResponse ? (ServletServerHttpResponse)m : null
+                    )
+                    .map(
+                        ServletServerHttpResponse::getServletResponse
+                    )
+                    .map(
+                        ServletResponse::getLocale
+                    )
+                    .orElse(
+                        null
+                    )
+            );
+
+
+
+        serializer.write(
+            hyperResource,
+            locale,
+            outputMessage.getBody()
+        );
     }
 
 
@@ -68,6 +104,7 @@ public class WriteOnlyHyperResourceMessageConverter extends AbstractHttpMessageC
         return serializer.canWrite((Class<? extends HyperResource>) aClass);
     }
 
+    //TODO: why is this exposed?
     public HyperResourceSerializer getSerializer() {
         return serializer;
     }

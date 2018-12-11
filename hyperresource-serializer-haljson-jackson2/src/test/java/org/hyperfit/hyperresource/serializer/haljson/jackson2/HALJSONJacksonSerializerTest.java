@@ -5,6 +5,7 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -25,19 +26,25 @@ import org.hyperfit.hyperresource.controls.Link;
 
 public class HALJSONJacksonSerializerTest {
 
-    static String readResourceAsString(String resource){
-        return new Scanner(HALJSONJacksonSerializerTest.class.getClassLoader().getResourceAsStream(resource), "UTF-8").useDelimiter("\\A").next();
+    private static String readResourceAsString(String resource){
+        return new Scanner(
+            HALJSONJacksonSerializerTest.class.getClassLoader()
+                .getResourceAsStream(resource),
+            StandardCharsets.UTF_8.name()
+        )
+        .useDelimiter("\\A")
+        .next();
 
     }
 
-    HALJSONJacksonSerializer writer = new HALJSONJacksonSerializer();
+    private HALJSONJacksonSerializer writer = new HALJSONJacksonSerializer();
 
 
-    ByteArrayOutputStream outputStream;
+    private ByteArrayOutputStream outputStream;
 
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         outputStream = new ByteArrayOutputStream();
 
@@ -61,14 +68,15 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceNoControls() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public int getVal() {
                 return 1;
             }
 
-            ;
         };
 
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = "{\"val\":1}";
 
@@ -80,7 +88,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -88,11 +96,13 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithOneLinkControl() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link getImage() {
                 return new Link("bb:image", "some/url/to/image", "small", "PNG", "A TITLE");
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneLinkControl.json");
 
@@ -105,7 +115,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -114,15 +124,17 @@ public class HALJSONJacksonSerializerTest {
     public void testWriteResourceWithTwoLinkControls() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
 
+            @SuppressWarnings("unused")
             public Link getImage() {
                 return new Link("bb:image", "some/url/to/image", "small", "PNG");
             }
 
+            @SuppressWarnings("unused")
             public Link getSelf() {
                 return new Link("self", "some/url/to/resource");
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoLinkControls.json");
 
@@ -134,7 +146,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -142,11 +154,13 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithNullLinkControl() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link getLink() {
                 return null;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = "{}";
 
@@ -159,7 +173,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -167,13 +181,15 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithLinkArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link[] getProfile() {
                 return new Link[]{
                     new Link("profile", "prof1"), new Link("profile", "prof2")
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayControl.json");
 
@@ -185,7 +201,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -193,6 +209,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithLinkArrayNLink() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link[] getProfile() {
                 return new Link[]{
                     new Link("profile", "prof1"),
@@ -200,11 +218,12 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
 
+            @SuppressWarnings("unused")
             public Link getSelf() {
                 return new Link("self", "some/url/to/resource");
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayNLink.json");
 
@@ -216,7 +235,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -224,11 +243,13 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithLinkArrayNull() throws IOException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link[] getProfile() {
                 return null;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = "{}";
 
@@ -239,7 +260,7 @@ public class HALJSONJacksonSerializerTest {
 
         assertEquals(
             expectedString,
-            writer.writeToString(resource)
+            writer.writeToString(resource, null)
         );
     }
 
@@ -247,11 +268,13 @@ public class HALJSONJacksonSerializerTest {
     public void testWriteResourceWithProfileLink() throws IOException, JSONException {
         //we should not be treating profile any more special than any other rel
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link getProfile() {
                 return new Link("profile", "prof1");
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithProfileLinkIsArray.json");
 
@@ -264,7 +287,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -275,13 +298,15 @@ public class HALJSONJacksonSerializerTest {
         //always serialize the rel as an array, as this is how devs indicate they want
         //an array
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link[] getDogs() {
                 return new Link[]{
                     new Link("dog", "dog1")
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWith1Entry.json");
 
@@ -293,7 +318,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -304,6 +329,8 @@ public class HALJSONJacksonSerializerTest {
         //are forced to be serialized as an array
         //i don't forsee anyone doing this...but they might
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public Link[] getAnimals() {
                 return new Link[]{
                     new Link("dog", "dog1"),
@@ -311,7 +338,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithLinkArrayWithTwoEntriesDifferentRels.json");
 
@@ -323,7 +350,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -331,14 +358,16 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithListProperty() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public List<String> getList() {
-                List<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<>();
                 list.add("foo1");
                 list.add("foo2");
                 return list;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
 
         String expectedString = "{\"list\":[\"foo1\",\"foo2\"]}";
 
@@ -350,7 +379,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -358,16 +387,20 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithOneSubResource() throws IOException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public HyperResource getResource() {
                 return new HyperResource() {
+
+                    @SuppressWarnings("unused")
                     public String getFoo() {
                         return "foo";
                     }
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = "{\"_embedded\":{\"bb:child\":{\"foo\":\"foo\"}}}";
 
         assertEquals(
@@ -377,22 +410,26 @@ public class HALJSONJacksonSerializerTest {
 
         assertEquals(
             expectedString,
-            writer.writeToString(resource)
+            writer.writeToString(resource, null)
         );
     }
 
     @Test
     public void testWriteResourceWithOneSubResourceNoRelAnnotation() throws IOException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public HyperResource getResource() {
                 return new HyperResource() {
+
+                    @SuppressWarnings("unused")
                     public String getFoo() {
                         return "foo";
                     }
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = "{\"_embedded\":{\"resource\":{\"foo\":\"foo\"}}}";
 
         assertEquals(
@@ -402,18 +439,20 @@ public class HALJSONJacksonSerializerTest {
 
         assertEquals(
             expectedString,
-            writer.writeToString(resource)
+            writer.writeToString(resource, null)
         );
     }
 
     @Test
     public void testWriteResourceWithNullSubresource() throws IOException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public HyperResource getResource() {
                 return null;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = "{}";
 
         assertEquals(
@@ -423,13 +462,15 @@ public class HALJSONJacksonSerializerTest {
 
         assertEquals(
             expectedString,
-            writer.writeToString(resource)
+            writer.writeToString(resource, null)
         );
     }
 
     @Test
     public void testWriteResourceWithTwoSubResourcesWithSameRel() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:children")
             public HyperResource getResource1() {
                 return new HyperResource() {
@@ -439,6 +480,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
 
+            @SuppressWarnings("unused")
             @Rel("bb:children")
             public HyperResource getResource2() {
                 return new HyperResource() {
@@ -448,7 +490,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
 
         JSONAssert.assertEquals(
@@ -459,7 +501,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -468,23 +510,28 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithTwoSameSubResourcesDifferentRels() throws IOException, JSONException {
         HyperResource sub = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public String getFoo() {
                 return "foo";
             }
         };
 
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:children1")
             public HyperResource getResource1() {
                 return sub;
             }
 
+            @SuppressWarnings("unused")
             @Rel("bb:children2")
             public HyperResource getResource2() {
                 return sub;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSameSubResourcesDifferentRels.json");
 
         JSONAssert.assertEquals(
@@ -495,7 +542,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -506,6 +553,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithSubresouceArray() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:children")
             public HyperResource[] getResource() {
                 HyperResource child1 = new HyperResource() {
@@ -521,7 +570,7 @@ public class HALJSONJacksonSerializerTest {
                 return new HyperResource[]{child1, child2};
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoSubResourcesWithSameRel.json");
 
         JSONAssert.assertEquals(
@@ -532,7 +581,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -542,12 +591,13 @@ public class HALJSONJacksonSerializerTest {
         //By default we exclude empty sub resource arrays
         HyperResource resource = new HyperResource() {
 
+            @SuppressWarnings("unused")
             @Rel("bb:children")
             public HyperResource[] getResource() {
                 return new HyperResource[]{};
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = "{}";
 
         JSONAssert.assertEquals(
@@ -558,7 +608,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -568,12 +618,13 @@ public class HALJSONJacksonSerializerTest {
         //nulls are ignored in general..so this is no different than an empty aray
         HyperResource resource = new HyperResource() {
 
+            @SuppressWarnings("unused")
             @Rel("bb:children")
             public HyperResource[] getResource() {
                 return null;
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = "{}";
 
         JSONAssert.assertEquals(
@@ -584,7 +635,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -592,6 +643,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithOneSubResourceWithOneLink() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public HyperResource getResource() {
                 return new HyperResource() {
@@ -601,7 +654,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithOneSubResourceWithOneLink.json");
 
         JSONAssert.assertEquals(
@@ -612,7 +665,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -620,6 +673,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithTwoDepthSubresources() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child1")
             public HyperResource getResource() {
                 return new HyperResource() {
@@ -627,6 +682,7 @@ public class HALJSONJacksonSerializerTest {
                         return "foo£";
                     }
 
+                    @SuppressWarnings("unused")
                     @Rel("bb:child2")
                     public HyperResource getResource() {
                         return new HyperResource() {
@@ -638,7 +694,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTwoDepthSubresources.json");
 
         JSONAssert.assertEquals(
@@ -649,7 +705,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -659,6 +715,8 @@ public class HALJSONJacksonSerializerTest {
     public void testWriteResourceWithSubresourceArrayWithSingleEntry() throws IOException, JSONException {
         // a subresource returned as part of an array always should serialize as an array
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public HyperResource[] getResource() {
                 return new HyperResource[]{
@@ -670,7 +728,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
 
         JSONAssert.assertEquals(
@@ -681,7 +739,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -690,6 +748,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithSubresourceArrayWithSingleEntryAndNullEntry() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public HyperResource[] getResource() {
                 return new HyperResource[]{
@@ -702,7 +762,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithSingleEntry.json");
 
         JSONAssert.assertEquals(
@@ -713,7 +773,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -722,6 +782,8 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithSubresourceArrayWithMultiEntry() throws IOException, JSONException {
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public HyperResource[] getResource() {
                 return new HyperResource[]{
@@ -738,7 +800,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithSubresourceArrayWithMultipleEntries.json");
 
         JSONAssert.assertEquals(
@@ -749,7 +811,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -759,8 +821,9 @@ public class HALJSONJacksonSerializerTest {
     @Test
     public void testWriteResourceWithTypedSubresourceArrayWithMultiEntry() throws IOException, JSONException {
         class TypedResource implements HyperResource {
-            final String foo;
+            private final String foo;
 
+            @SuppressWarnings("unused")
             public String getFoo() {
                 return foo;
             }
@@ -771,6 +834,8 @@ public class HALJSONJacksonSerializerTest {
         }
 
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             @Rel("bb:child")
             public TypedResource[] getResource() {
                 return new TypedResource[]{
@@ -779,7 +844,7 @@ public class HALJSONJacksonSerializerTest {
                 };
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTypedSubresourceArrayWithMultipleEntries.json");
 
         JSONAssert.assertEquals(
@@ -790,7 +855,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
@@ -801,6 +866,8 @@ public class HALJSONJacksonSerializerTest {
 
         //We don't currently write templated actions out
         HyperResource resource = new HyperResource() {
+
+            @SuppressWarnings("unused")
             public TemplatedAction getSomeAction() {
                 return new TemplatedAction.Builder()
                     .name("some-action")
@@ -808,7 +875,7 @@ public class HALJSONJacksonSerializerTest {
                     .build();
             }
         };
-        writer.write(resource, outputStream);
+        writer.write(resource, null, outputStream);
         String expectedString = readResourceAsString("hal-serializer-tests/ResourceWithTemplatedAction.json");
 
         JSONAssert.assertEquals(
@@ -819,7 +886,7 @@ public class HALJSONJacksonSerializerTest {
 
         JSONAssert.assertEquals(
             expectedString,
-            writer.writeToString(resource),
+            writer.writeToString(resource, null),
             NON_EXTENSIBLE
         );
     }
