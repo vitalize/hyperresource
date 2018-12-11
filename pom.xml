@@ -4,7 +4,7 @@
 
   <groupId>org.hyperfit</groupId>
   <artifactId>hyperresource-parent</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.2.1-SNAPSHOT</version>
 
 
   <modules>
@@ -153,6 +153,37 @@
             <source>1.8</source>
             <target>1.8</target>
           </configuration>
+        </plugin>
+
+        <!-- http://pitest.org/quickstart/maven/ -->
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>1.4.3</version>
+          <configuration>
+            <threads>2</threads>
+            <mutators>
+              <!-- from http://pitest.org/faq/ this is how to use defaults and addition tests -->
+              <mutator>ALL</mutator>
+            </mutators>
+
+            <!--todo configure maven site plugin report-->
+
+            <timestampedReports>false</timestampedReports>
+
+            <!--todo figure out how to exclude main form line coverage and set line coverage to 100. I tried exclude method and avoidCallsTo but didn't seem to work-->
+            <coverageThreshold>90</coverageThreshold>
+            <mutationThreshold>100</mutationThreshold>
+          </configuration>
+          <executions>
+            <!-- we want mutation testing for real, so run it during test phase-->
+            <execution>
+              <phase>test</phase>
+              <goals>
+                <goal>mutationCoverage</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
 
       </plugins>

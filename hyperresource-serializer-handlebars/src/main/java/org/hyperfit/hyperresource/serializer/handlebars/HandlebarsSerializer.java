@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.*;
 
+import com.github.jknack.handlebars.Context;
 import org.hyperfit.hyperresource.serializer.HyperResourceSerializer;
 
 import org.hyperfit.hyperresource.HyperResource;
@@ -17,6 +18,17 @@ import org.slf4j.LoggerFactory;
  * A HyperResourceSerializer that uses JKnack Handlebars to serialize Hyper Resources, usually as HTML.
  */
 public class HandlebarsSerializer implements HyperResourceSerializer {
+
+    /**
+     * The path within the root hbs root context to the locale of the serialization
+     */
+    public static final String HBS_PATH_TO_LOCALE = "_locale";
+
+    /**
+     * The path within the root hbs root context to the content language of the serialization
+     */
+    public static final String HBS_PATH_TO_CONTENT_LANGUAGE = "_contentLanguage";
+
     private static final Logger LOG = LoggerFactory.getLogger(HandlebarsSerializer.class);
 
     private final Handlebars handlebars;
@@ -88,14 +100,35 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
         );
     }
 
+    private Context buildContext(
+        HyperResource resource,
+        Locale locale
+    ) {
+
+        Context.Builder c = Context.newBuilder(resource);
+        if(locale != null){
+            c.combine(HBS_PATH_TO_LOCALE, locale);
+            c.combine(HBS_PATH_TO_CONTENT_LANGUAGE, locale.toLanguageTag());
+        }
+
+        return c.build();
+    }
+
     @Override
     public void write(
         HyperResource resource,
+        Locale locale,
         OutputStream output
     ) throws IOException {
         Template template = compileTemplateFor(resource.getClass());
         OutputStreamWriter writer = new OutputStreamWriter(output);
-        template.apply(resource, writer);
+        template.apply(
+            buildContext(
+                resource,
+                locale
+            ),
+            writer
+        );
 
         //TODO: is this necessary or even a good idea? OutputStreamWriter
         //uses a string encoder that seems like it would want a flush
@@ -113,10 +146,16 @@ public class HandlebarsSerializer implements HyperResourceSerializer {
 
     @Override
     public String writeToString(
-        HyperResource resource
+        HyperResource resource,
+        Locale locale
     ) throws IOException {
         Template template = compileTemplateFor(resource.getClass());
-        return template.apply(resource);
+        return template.apply(
+            buildContext(
+                resource,
+                locale
+            )
+        );
     }
 
 }

@@ -4,8 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.github.jknack.handlebars.Context;
 import org.hyperfit.hyperresource.HyperResource;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.TemplateLoader;
@@ -13,6 +17,7 @@ import com.github.jknack.handlebars.io.TemplateSource;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -20,6 +25,8 @@ import org.mockito.MockitoAnnotations;
 import com.github.jknack.handlebars.Handlebars;
 import test.TestUtils;
 
+import static org.hyperfit.hyperresource.serializer.handlebars.HandlebarsSerializer.HBS_PATH_TO_CONTENT_LANGUAGE;
+import static org.hyperfit.hyperresource.serializer.handlebars.HandlebarsSerializer.HBS_PATH_TO_LOCALE;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.*;
@@ -47,11 +54,57 @@ public class HandlebarsSerializerTest {
     @Mock
     Template mockTemplate;
 
-    HandlebarsSerializer subject;
+    private HandlebarsSerializer subject;
 
+    private static class HBSContextMatcher extends ArgumentMatcher<Context> {
+
+        private final Context matchee;
+
+        private HBSContextMatcher(Context matchee) {
+            this.matchee = matchee;
+        }
+
+
+        @Override
+        public boolean matches(Object argument) {
+            if(!(argument instanceof Context)){
+                return false;
+            }
+
+            Context candidate = (Context)argument;
+
+
+            if(!matchee.model().equals(candidate.model())){
+                return false;
+            }
+
+            //Context doesnt' seem to expose a list of all keys...or anyway to enumerate the paths of data
+            //could access the private members i suppose...but we'll just check the list of KNOWN keys
+            String[] knownDataKeys = new String[]{
+                "_locale",
+                "_contentLanguage"
+            };
+
+            for(String key: knownDataKeys){
+
+                if(!Objects.equals(matchee.get(key), candidate.get(key))){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+    }
+
+    private static Context matchesContext(
+        Context c
+    ){
+        return argThat(new HBSContextMatcher(c));
+    }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         when(mockHandlebars.getLoader())
@@ -115,7 +168,21 @@ public class HandlebarsSerializerTest {
         }
 
         try{
-            new HandlebarsSerializer(mockHandlebars, new String[0]);
+            new HandlebarsSerializer(
+                mockHandlebars,
+                (String[])null
+            );
+            fail("expected exception not thrown");
+        }catch(IllegalArgumentException e){
+            assertThat(e.getMessage(), containsString("handledContentTypes can not be null or empty"));
+        }
+
+        try{
+            //noinspection RedundantArrayCreation
+            new HandlebarsSerializer(
+                mockHandlebars,
+                new String[0]
+            );
             fail("expected exception not thrown");
         }catch(IllegalArgumentException e){
             assertThat(e.getMessage(), containsString("handledContentTypes can not be null or empty"));
@@ -138,7 +205,7 @@ public class HandlebarsSerializerTest {
     }
 
 
-    class FakeHyperResource implements HyperResource {
+    private class FakeHyperResource implements HyperResource {
 
     }
 
@@ -156,11 +223,16 @@ public class HandlebarsSerializerTest {
 
         RuntimeException fakeException = new RuntimeException();
 
-        doThrow(fakeException)
-            .when(mockTemplate).apply(same(fakeResource), Mockito.any(Writer.class));
+        doThrow(
+            fakeException
+        )
+        .when(mockTemplate).apply(
+            matchesContext(Context.newContext(fakeResource)),
+            Mockito.any(Writer.class)
+        );
 
         try{
-            subject.write(fakeResource, mockOutputStream);
+            subject.write(fakeResource, null, mockOutputStream);
             fail("expected exception not thrown");
         }catch(Exception e){
             assertSame(fakeException, e);
@@ -172,7 +244,7 @@ public class HandlebarsSerializerTest {
     }
 
     @Test
-    public void testWrite() throws IOException {
+    public void testWriteNoLocale() throws IOException {
 
         AtomicBoolean flushCalled = new AtomicBoolean(false);
 
@@ -181,13 +253,13 @@ public class HandlebarsSerializerTest {
         ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream(){
 
             @Override
-            public void close() throws IOException {
+            public void close() {
                 fail("close should not be called");
             }
 
 
             @Override
-            public void flush() throws IOException {
+            public void flush() {
                 flushCalled.set(true);
             }
         };
@@ -203,9 +275,12 @@ public class HandlebarsSerializerTest {
                 return null;
             }
         )
-            .when(mockTemplate).apply(same(fakeResource), Mockito.any(Writer.class));
+        .when(mockTemplate).apply(
+            matchesContext(Context.newContext(fakeResource)),
+            Mockito.any(Writer.class)
+        );
 
-        subject.write(fakeResource, fakeOutputStream);
+        subject.write(fakeResource, null, fakeOutputStream);
 
         assertEquals(
             "The result written to writer must make it to the passed in output stream",
@@ -217,13 +292,92 @@ public class HandlebarsSerializerTest {
 
         //This feels like cheating
 
-        when(mockTemplate.apply(same(fakeResource)))
-            .thenReturn(fakeResult);
+        when(mockTemplate.apply(
+            matchesContext(Context.newContext(fakeResource))
+        ))
+        .thenReturn(fakeResult);
 
         assertEquals(
             "The result written to writer must make it to the passed in output stream",
             fakeResult,
-            subject.writeToString(fakeResource)
+            subject.writeToString(fakeResource, null)
+        );
+
+    }
+
+
+
+    @Test
+    public void testWriteWithLocale() throws IOException {
+
+        AtomicBoolean flushCalled = new AtomicBoolean(false);
+
+        //TODO: randomize
+        Locale fakeLocale = new Locale("pt", "BR");
+
+        FakeHyperResource fakeResource = new FakeHyperResource();
+        ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream(){
+
+            @Override
+            public void close() {
+                fail("close should not be called");
+            }
+
+
+            @Override
+            public void flush() {
+                flushCalled.set(true);
+            }
+        };
+
+        when(mockHandlebars.compile("FakeHyperResource"))
+            .thenReturn(mockTemplate);
+
+        final String fakeResult = TestUtils.uniqueString();
+
+        Context expectedContext = Context.newBuilder(fakeResource)
+            .combine(
+                HBS_PATH_TO_LOCALE,
+                fakeLocale
+            )
+            .combine(
+                HBS_PATH_TO_CONTENT_LANGUAGE,
+                fakeLocale.toLanguageTag()
+            )
+            .build();
+
+        doAnswer(
+            i -> {
+                ((Writer) i.getArguments()[1]).write(fakeResult);
+                return null;
+            }
+        )
+            .when(mockTemplate).apply(
+            matchesContext(expectedContext),
+            Mockito.any(Writer.class)
+        );
+
+        subject.write(fakeResource, fakeLocale, fakeOutputStream);
+
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            fakeOutputStream.toString()
+        );
+
+        assertTrue("flush must be called", flushCalled.get());
+
+        //This feels like cheating
+
+        when(mockTemplate.apply(
+            matchesContext(expectedContext)
+        ))
+        .thenReturn(fakeResult);
+
+        assertEquals(
+            "The result written to writer must make it to the passed in output stream",
+            fakeResult,
+            subject.writeToString(fakeResource, fakeLocale)
         );
 
     }
@@ -262,13 +416,13 @@ public class HandlebarsSerializerTest {
         ByteArrayOutputStream fakeOutputStream = new ByteArrayOutputStream(){
 
             @Override
-            public void close() throws IOException {
+            public void close() {
                 fail("close should not be called");
             }
 
 
             @Override
-            public void flush() throws IOException {
+            public void flush() {
                 flushCalled.set(true);
             }
         };
@@ -283,10 +437,12 @@ public class HandlebarsSerializerTest {
                 ((Writer) i.getArguments()[1]).write(fakeResult);
                 return null;
             }
-        )
-            .when(mockTemplate).apply(same(fakeResource), Mockito.any(Writer.class));
+        ).when(mockTemplate).apply(
+            matchesContext(Context.newContext(fakeResource)),
+            Mockito.any(Writer.class)
+        );
 
-        subject.write(fakeResource, fakeOutputStream);
+        subject.write(fakeResource, null, fakeOutputStream);
 
         assertEquals(
             "The result written to writer must make it to the passed in output stream",
@@ -298,14 +454,44 @@ public class HandlebarsSerializerTest {
 
         //This feels like cheating
 
-        when(mockTemplate.apply(same(fakeResource)))
-            .thenReturn(fakeResult);
+        when(mockTemplate.apply(
+            matchesContext(Context.newContext(fakeResource))
+        ))
+        .thenReturn(fakeResult);
 
         assertEquals(
             "The result written to writer must make it to the passed in output stream",
             fakeResult,
-            subject.writeToString(fakeResource)
+            subject.writeToString(fakeResource, null)
         );
+
+    }
+
+
+
+    @Test
+    public void verifyContentTypesIsUnmodifiableList(){
+        String[] types = new String[]{
+            "something/nothing",
+            TestUtils.uniqueString()
+        };
+
+        subject = new HandlebarsSerializer(
+            mockHandlebars,
+            types
+        );
+
+        List<String> actual = subject.getContentTypes();
+
+        try{
+            actual.set(
+                0,
+                TestUtils.uniqueString()
+            );
+            fail("Expected exception not thrown");
+        } catch (UnsupportedOperationException e){
+
+        }
 
     }
 
