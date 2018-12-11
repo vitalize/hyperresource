@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.databind.*;
 import org.hyperfit.hyperresource.controls.Link;
@@ -135,13 +136,15 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
 
     public void write(
         HyperResource resource,
+        Locale locale,
         OutputStream output
     ) throws IOException {
         MAPPER.writeValue(output, resource);
     }
 
     public String writeToString(
-        HyperResource resource
+        HyperResource resource,
+        Locale locale
     ) throws IOException {
         return MAPPER.writeValueAsString(resource);
     }
