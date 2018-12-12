@@ -21,7 +21,7 @@ pipeline {
 
                 withMaven(globalMavenSettingsConfig: 'maven-settings') {
                     sh '''
-                        mvn -U --show-version --errors             \
+                        $MVN_CMD_DIR/mvn -U --show-version --errors             \
                             --define cpd.failOnViolation=false  \
                             --define findbugs.failOnError=false \
                             --define jacoco.haltOnFailure=false \
