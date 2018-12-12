@@ -91,7 +91,7 @@ pipeline {
 
             steps {
                 script {
-                    sshagent(['git-spring4-wrapper-client']) {
+                    sshagent(['abe5a9f1-d7ab-49d1-a59b-8727aa9cd733']) {
                         def project = readMavenPom()
                         sh "git tag -a '${project.version}' -m 'Released ${project.version}'"
                         sh "git push -v git@github.body.prod:commerce/spring4-wrapper-client.git '${project.version}'"
