@@ -18,10 +18,6 @@
   <name>Hyperfit HyperResource</name>
   <description>Collection of libraries for generating Hypermedia RESTful resources</description>
   <packaging>pom</packaging>
-  <url>http://github.body.prod/hyperfit/hyperresource/tree/master</url>
-  <scm>
-    <url>http://github.body.prod/hyperfit/hyperresource/tree/master</url>
-  </scm>
 
 
   <build>
