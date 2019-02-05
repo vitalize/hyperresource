@@ -19,6 +19,16 @@
   <description>Collection of libraries for generating Hypermedia RESTful resources</description>
   <packaging>pom</packaging>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
   <build>
     <defaultGoal>verify</defaultGoal>
@@ -102,7 +112,7 @@
       </plugin>
 
       <!-- from http://maven.apache.org/plugins/maven-gpg-plugin/usage.html -->
-      <!--plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.6</version>
@@ -115,7 +125,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin-->
+      </plugin>
 
     </plugins>
 
@@ -167,50 +177,30 @@
             </execution>
           </executions>
         </plugin>
+        
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.3</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>ossrh</serverId>
+            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          </configuration>
+        </plugin>
 
       </plugins>
     </pluginManagement>
   </build>
 
-
-  <profiles>
-
-    <profile>
-      <!-- see Jenkinsfile, this profile is skipped on the deploy stage, but used in the build stage-->
-      <id>code-quality</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>code-quality</id>
-                <goals>
-                  <goal>check</goal>
-                  <goal>cpd-check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-            <version>3.0.4</version>
-            <executions>
-              <execution>
-                <id>code-quality</id>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
 
   <developers>
@@ -219,6 +209,12 @@
       <name>drdamour</name>
       <email>drdamour@gmail.com</email>
       <url>https://talkshowhost.net</url>
+    </developer>
+    <developer>
+      <id>VitalizeOSS</id>
+      <name>Vitalize OSS</name>
+      <email>oss@vitalize.com</email>
+      <url>https://bodybuilding.com</url>
     </developer>
   </developers>
 
