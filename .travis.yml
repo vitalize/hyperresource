@@ -3,6 +3,12 @@ language: java
 jdk:
  - oraclejdk8
 
+matrix:
+  include:
+    - os: linux
+      env: COVERALLS_SERVICE_NAME=travis-ci
+
+
 
 before_install:
   #these env vars are only set for internal repo PRs and branches...forks won't have em
