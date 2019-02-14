@@ -3,10 +3,6 @@ language: java
 jdk:
  - oraclejdk8
 
-matrix:
-  include:
-    - os: linux
-      env: COVERALLS_SERVICE_NAME=travis-ci
 
 
 
@@ -18,6 +14,6 @@ before_install:
 install: true
 
 script:
-  - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then ./mvnw clean test org.jacoco:jacoco-maven-plugin:report org.eluder.coveralls:coveralls-maven-plugin:report -B -U; fi
+  - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then ./mvnw clean test org.jacoco:jacoco-maven-plugin:report -B -U; fi
   - if [ "$TRAVIS_PULL_REQUEST" = "false"  ]; then if [ "$TRAVIS_BRANCH" = "master" ]; then ./mvnw clean deploy org.jacoco:jacoco-maven-plugin:report  --settings .travis/settings.xml -B -U; fi; fi
-  - if [ "$TRAVIS_PULL_REQUEST" = "false"  ]; then if [ "$TRAVIS_BRANCH" != "master" ]; then ./mvnw clean verify org.jacoco:jacoco-maven-plugin:report org.eluder.coveralls:coveralls-maven-plugin:report -B -U; fi; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false"  ]; then if [ "$TRAVIS_BRANCH" != "master" ]; then ./mvnw clean verify org.jacoco:jacoco-maven-plugin:report -B -U; fi; fi
