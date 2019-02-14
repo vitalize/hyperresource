@@ -144,15 +144,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
-        <configuration>
-          <sourceEncoding>UTF-8</sourceEncoding>
-          <serviceName>travis-ci</serviceName>
-        </configuration>
-      </plugin>
     </plugins>
 
     <pluginManagement>
