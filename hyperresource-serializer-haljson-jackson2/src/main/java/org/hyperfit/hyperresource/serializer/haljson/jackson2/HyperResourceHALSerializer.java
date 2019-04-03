@@ -283,7 +283,9 @@ class HyperResourceHALSerializer extends BeanSerializerBase {
     }
 
     @Override
-    protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
+    protected BeanSerializerBase withIgnorals(
+        Set<String> toIgnore
+    ) {
         return new HyperResourceHALSerializer(this, toIgnore);
     }
 

@@ -118,6 +118,8 @@ public class HALJSONJacksonSerializer implements HyperResourceSerializer {
 
                 })
         )
+        //In order to support JsonView you have to not include everything by default
+        //at least till they add exclusion rules https://github.com/FasterXML/jackson-databind/issues/456
         .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
         ;
 
